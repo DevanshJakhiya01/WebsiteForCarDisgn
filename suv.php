@@ -74,9 +74,9 @@
     <?php
     
     $suvs = [
-        ["image" => "suv1.jpg", "caption" => "SUV Model 1"], 
-        ["image" => "suv2.jpg", "caption" => "SUV Model 2"],
-        ["image" => "suv3.jpg", "caption" => "SUV Model 3"],
+        ["image" => "Images/2024%20Land%20Rover%20Defender.jpg", "caption" => "Land Rover Defender"], 
+        ["image" => "Images/Mahindra%20XUV%20700%20A%20Luxurious.jpg", "caption" => "Mahindra XUV 700: A Luxurious"],
+        ["image" => "Images/2023-cadillac-xt6-exterior-001.jpg", "caption" => "XT6 Cadillac"],
     ];
 
     foreach ($suvs as $suv): ?>
