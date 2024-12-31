@@ -74,10 +74,11 @@
 
     <?php
     
+     
     $hatchbacks = [
-        ["name" => "Suzuki Swift", "image" => "swift.jpg", "description" => "A popular and fuel-efficient hatchback."],
-        ["name" => "Honda Civic", "image" => "civic.jpg", "description" => "Known for its reliability and sporty handling."],
-        ["name" => "Volkswagen Golf", "image" => "golf.jpg", "description" => "A classic hatchback with a premium feel."],
+        ["name" => "Suzuki Swift", "image" => "Images/Suzuki_Swift_04.jpg", "description" => "A popular and fuel-efficient hatchback."],
+        ["name" => "Honda Civic", "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg", "description" => "Known for its reliability and sporty handling."],
+        ["name" => "Volkswagen Golf", "image" => "Images/volkswagen-golf-2020-specs-01.jpg", "description" => "A classic hatchback with a premium feel."],
     ];
 
     foreach ($hatchbacks as $hatchback): ?>
