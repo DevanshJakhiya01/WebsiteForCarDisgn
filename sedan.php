@@ -75,9 +75,9 @@
     <?php
     
     $sedans = [
-        ["image" => "sedan1.jpg", "caption" => "Classic Sedan"], 
-        ["image" => "sedan2.jpg", "caption" => "Modern Sedan"],
-        ["image" => "sedan3.jpg", "caption" => "Luxury Sedan"],
+        ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "caption" => "Volkswagen Polo"], 
+        ["image" => "Images/audi%20A3.jpg", "caption" => "Audi A3"],
+        ["image" => "Images/2024%20Lexus%20ES.jpg", "caption" => "Lexus ES"],
     ];
 
     foreach ($sedans as $sedan): ?>
