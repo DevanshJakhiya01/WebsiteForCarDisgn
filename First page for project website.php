@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Devansh Car Customization</title>
     <style>
         body {
@@ -73,19 +71,19 @@
     <?php
     $cars = [
         [
-            "image" => "images/tatatiagopxe_373379_daytonagrey_base.jpeg", // Relative path
+            "image" => "images/tatatiagopxe_373379_daytonagrey_base.jpeg", 
             "alt" => "Tata Tiago",
             "type" => "Hatchback",
             "link" => "hatchback.php"
         ],
         [
-            "image" => "images/dzire-2024-exterior-right-front-three-quarter-3.jpeg", // Relative path
+            "image" => "images/dzire-2024-exterior-right-front-three-quarter-3.jpeg", 
             "alt" => "Dzire",
             "type" => "Sedan",
             "link" => "sedan.php"
         ],
         [
-            "image" => "images/syrosintensered.jpeg", // Relative path
+            "image" => "images/syrosintensered.jpeg", 
             "alt" => "Kia Syros",
             "type" => "SUV",
             "link" => "suv.php"
