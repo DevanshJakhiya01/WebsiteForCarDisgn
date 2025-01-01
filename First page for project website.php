@@ -1,6 +1,9 @@
 <html>
 <head>
+<<<<<<< HEAD
     
+=======
+>>>>>>> de70a6a76f4ae728361d7df5c293a414ab276f95
     <title>Devansh Car Customization</title>
     <style>
         body {
