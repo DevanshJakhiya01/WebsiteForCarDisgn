@@ -55,6 +55,20 @@
             margin-top: 10px; 
             width: 100%; 
             box-sizing: border-box; 
+=======
+
+        #wheel-type-select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            background-color: white; 
+            color: black; 
+        }
+        #wheel-type-select:focus{
+            outline: none;
+            border: 1px solid blue;
         }
 
         @media (min-width: 768px) {
@@ -76,6 +90,9 @@
         ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "name" => "Volkswagen Polo", "description" => "A stylish and efficient compact car."],
         ["image" => "Images/audi%20A3.jpg", "name" => "Audi A3", "description" => "A premium compact sedan with advanced technology."],
         ["image" => "Images/2024%20Lexus%20ES.jpg", "name" => "Lexus ES", "description" => "A luxurious and comfortable mid-size sedan."],
+        ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "caption" => "Volkswagen Polo"],
+        ["image" => "Images/audi%20A3.jpg", "caption" => "Audi A3"],
+        ["image" => "Images/2024%20Lexus%20ES.jpg", "caption" => "Lexus ES"],
     ];
 
     foreach ($sedans as $sedan): ?>
@@ -93,5 +110,18 @@
             </div>
         </div>
     <?php endforeach; ?>
+    <select id="wheel-type-select">
+        <option value="">Select Wheel Type</option>
+        <option value="alloy">Alloy Wheels</option>
+        <option value="steel">Steel Wheels</option>
+        <option value="custom">Custom Wheels</option>
+        </select>
+    <script>
+        const selectElement = document.getElementById('wheel-type-select');
+        selectElement.addEventListener('change', (event) => {
+            const selectedValue = event.target.value;
+            console.log(`Selected wheel type: ${selectedValue}`);
+        });
+    </script>
 </body>
 </html>
