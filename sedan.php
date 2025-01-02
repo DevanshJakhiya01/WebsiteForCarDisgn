@@ -24,7 +24,7 @@
             margin-bottom: 20px;
             text-align: center;
             overflow: hidden;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
 
         .polaroid img {
@@ -37,22 +37,18 @@
             padding: 15px;
         }
 
-        input[type="button"] {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
+        #wheel-type-select {
+            padding: 10px;
             font-size: 16px;
-            cursor: pointer;
             border-radius: 5px;
-            transition: background-color 0.3s ease;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            background-color: white; 
+            color: black; 
         }
-
-        input[type="button"]:hover {
-            background-color: #e9967a;
+        #wheel-type-select:focus{
+            outline: none;
+            border: 1px solid blue;
         }
 
         @media (min-width: 768px) {
@@ -70,9 +66,8 @@
     <p>This is the Sedan page.</p>
 
     <?php
-    
     $sedans = [
-        ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "caption" => "Volkswagen Polo"], 
+        ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "caption" => "Volkswagen Polo"],
         ["image" => "Images/audi%20A3.jpg", "caption" => "Audi A3"],
         ["image" => "Images/2024%20Lexus%20ES.jpg", "caption" => "Lexus ES"],
     ];
@@ -86,7 +81,19 @@
         </div>
     <?php endforeach; ?>
 
-    <input type="button" value="Explore More">
+    <select id="wheel-type-select">
+        <option value="">Select Wheel Type</option>
+        <option value="alloy">Alloy Wheels</option>
+        <option value="steel">Steel Wheels</option>
+        <option value="custom">Custom Wheels</option>
+        </select>
+    <script>
+        const selectElement = document.getElementById('wheel-type-select');
+        selectElement.addEventListener('change', (event) => {
+            const selectedValue = event.target.value;
+            console.log(`Selected wheel type: ${selectedValue}`);
+        });
+    </script>
 
 </body>
 </html>
