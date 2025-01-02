@@ -1,5 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sedans</title>
     <style>
         body {
@@ -24,7 +27,7 @@
             margin-bottom: 20px;
             text-align: center;
             overflow: hidden;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
 
         .polaroid img {
@@ -35,24 +38,23 @@
 
         .container {
             padding: 15px;
+            display: flex;
+            flex-direction: column; 
+            align-items: flex-start; 
         }
-
-        input[type="button"] {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
+        .container p{
             text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            margin: 5px 0; 
         }
 
-        input[type="button"]:hover {
-            background-color: #e9967a;
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 10px; 
+            width: 100%; 
+            box-sizing: border-box; 
         }
 
         @media (min-width: 768px) {
@@ -70,23 +72,26 @@
     <p>This is the Sedan page.</p>
 
     <?php
-    
     $sedans = [
-        ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "caption" => "Volkswagen Polo"], 
-        ["image" => "Images/audi%20A3.jpg", "caption" => "Audi A3"],
-        ["image" => "Images/2024%20Lexus%20ES.jpg", "caption" => "Lexus ES"],
+        ["image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "name" => "Volkswagen Polo", "description" => "A stylish and efficient compact car."],
+        ["image" => "Images/audi%20A3.jpg", "name" => "Audi A3", "description" => "A premium compact sedan with advanced technology."],
+        ["image" => "Images/2024%20Lexus%20ES.jpg", "name" => "Lexus ES", "description" => "A luxurious and comfortable mid-size sedan."],
     ];
 
     foreach ($sedans as $sedan): ?>
         <div class="polaroid">
-            <img src="<?php echo $sedan['image']; ?>" alt="<?php echo $sedan['caption']; ?>">
+            <img src="<?php echo $sedan['image']; ?>" alt="<?php echo $sedan['name']; ?>">
             <div class="container">
-                <p><?php echo $sedan['caption']; ?></p>
+                <p><?= $sedan['name'] ?></p>
+                <p><?= $sedan['description'] ?></p>
+                <select name="wheel_type">
+                  <option value="">Select Wheel Type</option>
+                  <option value="alloy">Alloy Wheels</option>
+                  <option value="steel">Steel Wheels</option>
+                  <option value="aftermarket">Aftermarket Wheels</option>
+                </select>
             </div>
         </div>
     <?php endforeach; ?>
-
-    <input type="button" value="Explore More">
-
 </body>
 </html>
