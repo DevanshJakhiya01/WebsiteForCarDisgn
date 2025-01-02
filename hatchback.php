@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Hatchbacks</title>
@@ -37,22 +38,13 @@
             padding: 15px;
         }
 
-        input[type="button"] {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="button"]:hover {
-            background-color: #e9967a;
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; 
+            width: 100%;
+            margin-top: 10px;
         }
 
         @media (min-width: 768px) {
@@ -70,8 +62,6 @@
     <p>This is the hatchback page.</p>
 
     <?php
-    
-     
     $hatchbacks = [
         ["name" => "Suzuki Swift", "image" => "Images/Suzuki_Swift_04.jpg", "description" => "A popular and fuel-efficient hatchback."],
         ["name" => "Honda Civic", "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg", "description" => "Known for its reliability and sporty handling."],
@@ -84,7 +74,12 @@
             <div class="container">
                 <p><?= $hatchback['name'] ?></p>
                 <p><?= $hatchback['description'] ?></p>
-                <input type="button" value="Learn More">
+                <select name="wheel_type">
+                  <option value="">Select Wheel Type</option>
+                  <option value="alloy">Alloy Wheels</option>
+                  <option value="steel">Steel Wheels</option>
+                  <option value="aftermarket">Aftermarket Wheels</option>
+                </select>
             </div>
         </div>
     <?php endforeach; ?>
