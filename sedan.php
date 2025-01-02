@@ -48,23 +48,24 @@
         }
 
         select {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-top: 10px; 
-            width: 100%; 
-            box-sizing: border-box; 
-=======
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+                margin-top: 10px; 
+                width: 100%; 
+                box-sizing: border-box;
+        } 
+
 
         #wheel-type-select {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-top: 20px;
-            background-color: white; 
-            color: black; 
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-top: 20px;
+        background-color: white; 
+        color: black; 
         }
         #wheel-type-select:focus{
             outline: none;
@@ -102,10 +103,10 @@
                 <p><?= $sedan['name'] ?></p>
                 <p><?= $sedan['description'] ?></p>
                 <select name="wheel_type">
-                  <option value="">Select Wheel Type</option>
-                  <option value="alloy">Alloy Wheels</option>
-                  <option value="steel">Steel Wheels</option>
-                  <option value="aftermarket">Aftermarket Wheels</option>
+                <option value="">Select Wheel Type</option>
+                <option value="alloy">Alloy Wheels</option>
+                <option value="steel">Steel Wheels</option>
+                <option value="aftermarket">Aftermarket Wheels</option>
                 </select>
             </div>
         </div>
