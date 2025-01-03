@@ -63,24 +63,29 @@
 <p>This is the sedan page.</p>
 
 <?php
-$hatchbacks = [
+$sedans = [
     ["name" => "Volkswagen Polo", "image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "description" => "A stylish and efficient compact car."],
     ["name" => "Audi A3", "image" => "Images/audi%20A3.jpg", "description" => "A premium compact sedan with advanced technology."],
     ["name" => "Lexus ES", "image" => "Images/2024%20Lexus%20ES.jpg", "description" => "A luxurious and comfortable mid-size sedan."],
 ];
-
-foreach ($hatchbacks as $hatchback): ?>
-    <div class="polaroid">
-    <img src="<?= $hatchback['image'] ?>" alt="<?= $hatchback['name'] ?>">
-    <div class="container">
-        <p><?= $hatchback['name'] ?></p>
-        <p><?= $hatchback['description'] ?></p>
-        <select name="wheel_type">
-        <option value="">Select Wheel Type</option>
-        <option value="alloy">Alloy Wheels</option>
-        <option value="steel">Steel Wheels</option>
-        <option value="aftermarket">Aftermarket Wheels</option>
-        </select>
+ $wheelOptions = [
+        "Standard Wheels",
+        "Sport Wheels",
+        "Alloy Wheels",
+        "Black Rims",
+    ];
+ foreach ($sedans as $sedan): ?>
+        <div class="polaroid">
+            <img src="<?= $sedan['image'] ?>" alt="<?= $sedan['name'] ?>">
+            <div class="container">
+                <p><?= $sedan['name'] ?></p>
+                <p><?= $sedan['description'] ?></p>
+                <select name="wheels">
+                    <?php foreach ($wheelOptions as $wheel): ?>
+                        <option value="<?= $wheel ?>"><?= $wheel ?></option>
+                    <?php endforeach; ?>
+                </select>
+       
     </div>
     </div>
 <?php endforeach; ?>
