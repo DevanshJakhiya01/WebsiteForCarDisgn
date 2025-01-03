@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>SUVS</title>
+    <title>Suvs</title>
     <style>
         body {
             font-family: sans-serif;
@@ -23,6 +23,7 @@
             background-color: white;
             margin-bottom: 20px;
             text-align: center;
+            overflow: hidden;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
         }
 
@@ -36,22 +37,13 @@
             padding: 15px;
         }
 
-        input[type="button"] {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="button"]:hover {
-            background-color: #e9967a;
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; 
+            width: 100%;
+            margin-top: 10px;
         }
 
         @media (min-width: 768px) {
@@ -65,27 +57,31 @@
     </style>
 </head>
 <body>
-    <h1>Welcome to SUVS!</h1>
-    <p>This is the SUV page.</p>
+    <h1>Welcome to Suvs!</h1>
+    <p>This is the suv page.</p>
 
     <?php
-    
-    $suvs = [
-        ["image" => "Images/2024%20Land%20Rover%20Defender.jpg", "caption" => "Land Rover Defender"], 
-        ["image" => "Images/Mahindra%20XUV%20700%20A%20Luxurious.jpg", "caption" => "Mahindra XUV 700: A Luxurious"],
-        ["image" => "Images/2023-cadillac-xt6-exterior-001.jpg", "caption" => "XT6 Cadillac"],
+    $Suvs = [
+        ["name" => "Land Rover Defender", "image" => "Images/2024%20Land%20Rover%20Defender.jpg", "description" => "The iconic Land Rover Defender, blending rugged capability with modern luxury."],
+        ["name" => "Mahindra XUV 700: A Luxurious", "image" => "Images/Mahindra%20XUV%20700%20A%20Luxurious.jpg", "description" => "The Mahindra XUV700, offering a premium experience at a competitive price."],
+        ["name" => "XT6 Cadillac", "image" => "Images/2023-cadillac-xt6-exterior-001.jpg", "description" => "The Cadillac XT6, a stylish and refined SUV with three rows of seating."],
     ];
 
-    foreach ($suvs as $suv): ?>
+    foreach ($Suvs as $Suv): ?>
         <div class="polaroid">
-            <img src="<?php echo $suv['image']; ?>" alt="<?php echo $suv['caption']; ?>">
+            <img src="<?= $Suv['image'] ?>" alt="<?= $Suv['name'] ?>">
             <div class="container">
-                <p><?php echo $suv['caption']; ?></p>
+                <p><?= $Suv['name'] ?></p>
+                <p><?= $Suv['description'] ?></p>
+                <select>
+                    <option value="stock">Stock Wheels</option>
+                    <option value="black">Black Rims</option>
+                    <option value="chrome">Chrome Rims</option>
+                    <option value="offroad">Off-Road Tires</option>
+                </select>
             </div>
         </div>
     <?php endforeach; ?>
-
-    <input type="button" value="Explore More">
 
 </body>
 </html>
