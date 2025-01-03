@@ -99,7 +99,7 @@
             const selectedValue = selectElement.value;
 
             if (selectedValue) {
-                const wheelImages1 = {
+                const wheelImages = {
                     alloy: 'Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg',
                     steel: 'Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg',
                     aftermarket: 'Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg'
