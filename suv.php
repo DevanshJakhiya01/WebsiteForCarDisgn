@@ -11,6 +11,16 @@
             flex-direction: column;
             align-items: center;
         }
+        .logo {
+            width: 300px; /* Adjust as needed */
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
 
         h1 {
             text-align: center;
@@ -57,6 +67,7 @@
     </style>
 </head>
 <body>
+<img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     <h1>Welcome to Suvs!</h1>
     <p>This is the suv page.</p>
 
