@@ -11,6 +11,16 @@
             flex-direction: column;
             align-items: center;
         }
+        .logo {
+            width: 300px;
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
 
         h1 {
             text-align: center;
