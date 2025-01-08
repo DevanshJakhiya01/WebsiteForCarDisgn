@@ -34,7 +34,7 @@
             margin-bottom: 20px;
             text-align: center;
             overflow: hidden;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
 
         .polaroid img {
@@ -51,7 +51,7 @@
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box; 
+            box-sizing: border-box;
             width: 100%;
             margin-top: 10px;
         }
@@ -60,6 +60,7 @@
             body {
                 margin: 50px;
             }
+
             .polaroid {
                 width: 80%;
             }
