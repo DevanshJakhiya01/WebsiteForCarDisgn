@@ -122,13 +122,13 @@
                     ],
                     steel: [
                         'Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Steel%20Wheels%2059797.jpg',
-                        'Images/Firefly%20red%20color%20Honda%20Civic%202024%20with%20Steel%20Wheels%2059798.jpg',
-                        'Images/Firefly%20red%20color%20Volkswagen%20Golf%202024%20with%20Steel%20Wheels%2059799.jpg'
+                        'Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg',
+                        'Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg'
                     ],
                     aftermarket: [
                         'Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg',
-                        'Images/Firefly%20red%20color%20Honda%20Civic%202024%20with%20Aftermarket%20Wheels%2086151.jpg',
-                        'Images/Firefly%20red%20color%20Volkswagen%20Golf%202024%20with%20Aftermarket%20Wheels%2086152.jpg'
+                        'Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg',
+                        'Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg'
                     ]
                 };
 
