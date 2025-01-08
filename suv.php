@@ -12,7 +12,7 @@
             align-items: center;
         }
         .logo {
-            width: 300px; /* Adjust as needed */
+            width: 300px; 
             margin-bottom: 20px;
         }
 
