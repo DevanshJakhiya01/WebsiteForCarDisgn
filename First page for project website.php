@@ -1,5 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devansh Car Customization</title>
     <style>
         body {
@@ -12,9 +15,15 @@
             align-items: center;
         }
 
-        h1 {
-            text-align: center;
+        .logo {
+            width: 300px; /* Adjust as needed */
             margin-bottom: 20px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
         .polaroid {
@@ -61,11 +70,16 @@
             .polaroid {
                 width: 80%;
             }
+            .logo{
+                width: 400px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Devansh Car Customization</h1>
+    <div class="logo">
+        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    </div>
 
     <?php
     $cars = [
