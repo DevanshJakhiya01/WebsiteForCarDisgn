@@ -101,6 +101,7 @@
     </script>
 </head>
 <body>
+<img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo" class="logo">
     <h1>Welcome to Sedan</h1>
     <p>This is the sedan page.</p>
 
