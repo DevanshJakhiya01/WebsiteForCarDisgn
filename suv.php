@@ -12,7 +12,7 @@
             align-items: center;
         }
         .logo {
-            width: 300px; 
+            width: 300px;
             margin-bottom: 20px;
         }
 
@@ -73,18 +73,36 @@
 
     <?php
     $Suvs = [
-        ["name" => "Land Rover Defender", "image" => "Images/2024%20Land%20Rover%20Defender.jpg", "description" => "The iconic Land Rover Defender, blending rugged capability with modern luxury."],
-        ["name" => "Mahindra XUV 700: A Luxurious", "image" => "Images/Mahindra%20XUV%20700%20A%20Luxurious.jpg", "description" => "The Mahindra XUV700, offering a premium experience at a competitive price."],
-        ["name" => "XT6 Cadillac", "image" => "Images/2023-cadillac-xt6-exterior-001.jpg", "description" => "The Cadillac XT6, a stylish and refined SUV with three rows of seating."],
+        ["name" => "Land Rover Defender", "image" => "Images/2024%20Land%20Rover%20Defender.jpg", "description" => "The iconic Land Rover Defender, blending rugged capability with modern luxury.",
+        "custom_images" => [
+            "stock" => "Images/2024%20Land%20Rover%20Defender.jpg",
+            "black" => "Images/Firefly%20golden%20Land%20Rover%20Defender%20with%20Black%20rims%2013603.jpg",
+            "chrome" => "Images/Firefly%20golden%20Land%20Rover%20Defender%20with%20Chrome%20rims%2013603.jpg",
+            "offroad" => "Images/Firefly%20golden%20Land%20Rover%20Defender%20with%20Off%20road%20tires%2054774.jpg"
+        ]],
+        ["name" => "Mahindra XUV 700: A Luxurious", "image" => "Images/Mahindra%20XUV%20700%20A%20Luxurious.jpg", "description" => "The Mahindra XUV700, offering a premium experience at a competitive price.",
+        "custom_images" => [
+            "stock" => "Images/Mahindra%20XUV%20700%20A%20Luxurious.jpg",
+            "black" => "Images/Firefly%20Red%20Mahindra%20XUV%20700-%20A%20Luxurious%20with%20Black%20Rims%204514.jpg",
+            "chrome" => "Images/Firefly%20Red%20Mahindra%20XUV%20700-%20A%20Luxurious%20with%20Chrome%20Rims%204514.jpg",
+            "offroad" => "Images/Firefly%20Red%20Mahindra%20XUV%20700-%20A%20Luxurious%20with%20Off%20road%20tires%204514.jpg"
+        ]],
+        ["name" => "XT6 Cadillac", "image" => "Images/2023-cadillac-xt6-exterior-001.jpg", "description" => "The Cadillac XT6, a stylish and refined SUV with three rows of seating.",
+        "custom_images" => [
+            "stock" => "Images/2023-cadillac-xt6-exterior-001.jpg",
+            "black" => "Images/Firefly%20Golden%20XT6%20Cadillac%20with%20black%20Rims%2089686.jpg",
+            "chrome" => "Images/Firefly%20Golden%20XT6%20Cadillac%20with%20Chrome%20Rims%2089686.jpg",
+            "offroad" => "Images/Firefly%20Golden%20XT6%20Cadillac%20with%20Off%20road%20tires%2089686.jpg"
+        ]],
     ];
 
-    foreach ($Suvs as $Suv): ?>
+    foreach ($Suvs as $index => $Suv): ?>
         <div class="polaroid">
-            <img src="<?= $Suv['image'] ?>" alt="<?= $Suv['name'] ?>">
+            <img src="<?= $Suv['image'] ?>" alt="<?= $Suv['name'] ?>" id="suv-image-<?= $index ?>">
             <div class="container">
                 <p><?= $Suv['name'] ?></p>
                 <p><?= $Suv['description'] ?></p>
-                <select>
+ <select onchange="changeImage(<?= $index ?>, this.value)">
                     <option value="stock">Stock Wheels</option>
                     <option value="black">Black Rims</option>
                     <option value="chrome">Chrome Rims</option>
@@ -93,6 +111,14 @@
             </div>
         </div>
     <?php endforeach; ?>
+
+    <script>
+        function changeImage(index, value) {
+            const suvImages = <?= json_encode(array_column($Suvs, 'custom_images')) ?>;
+            const imageElement = document.getElementById(`suv-image-${index}`);
+            imageElement.src = suvImages[index][value];
+        }
+    </script>
 
 </body>
 </html>
