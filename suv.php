@@ -11,8 +11,9 @@
             flex-direction: column;
             align-items: center;
         }
+
         .logo {
-            width: 300px;
+            width: 300px; 
             margin-bottom: 20px;
         }
 
@@ -22,19 +23,13 @@
             display: block;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
         .polaroid {
             width: 90%;
             max-width: 600px;
             background-color: white;
             margin-bottom: 20px;
             text-align: center;
-            overflow: hidden;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
         .polaroid img {
@@ -47,28 +42,41 @@
             padding: 15px;
         }
 
-        select {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            width: 100%;
-            margin-top: 10px;
+        .button {
+            padding: 12px 24px;
+            background-color: darksalmon;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #e9967a;
         }
 
         @media (min-width: 768px) {
             body {
                 margin: 50px;
             }
-
             .polaroid {
                 width: 80%;
+            }
+            .logo{
+                width: 400px;
             }
         }
     </style>
 </head>
 <body>
-<img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    <div class="logo">
+        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    </div>
     <h1>Welcome to Suvs!</h1>
     <p>This is the suv page.</p>
 
