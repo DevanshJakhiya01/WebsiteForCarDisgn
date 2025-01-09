@@ -22,19 +22,13 @@
             display: block;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
         .polaroid {
             width: 90%;
             max-width: 600px;
             background-color: white;
             margin-bottom: 20px;
             text-align: center;
-            overflow: hidden;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
         .polaroid img {
@@ -47,88 +41,92 @@
             padding: 15px;
         }
 
-        select {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            width: 100%;
-            margin-top: 10px;
+        .button {
+            padding: 12px 24px;
+            background-color: darksalmon;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #e9967a;
         }
 
         @media (min-width: 768px) {
             body {
                 margin: 50px;
             }
-
             .polaroid {
                 width: 80%;
             }
+            .logo {
+                width: 400px;
+            }
         }
     </style>
-    <script>
-        function updateImage(index) {
-            const selectElement = document.getElementById(`wheel-select-${index}`);
-            const wheelImage = document.getElementById(`wheel-image-${index}`);
-            const selectedValue = selectElement.value;
-
-            const wheelImages = {
-                "Standard Wheels": [
-                    'Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg',
-                    'Images/audi%20A3.jpg',
-                    'Images/2024%20Lexus%20ES.jpg'
-                ],
-                "Sport Wheels": [
-                    'Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Sport%20Wheel%2038905.jpg',
-                    'Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Sport%20Wheel%2010329.jpg',
-                    'Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Sports%20Wheel%2034255.jpg'
-                ],
-                "Alloy Wheels": [
-                    'Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Alloy%20Wheel%2084813.jpg',
-                    'Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Alloy%20Wheel%2010329.jpg',
-                    'Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Alloy%20Wheel%2034255.jpg'
-                ],
-                "Black Rims": [
-                    'Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Black%20Rims%2088237.jpg',
-                    'Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Black%20Rims%2052221.jpg',
-                    'Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Black%20Rims%2034255.jpg'
-                ]
-            };
-
-            wheelImage.src = wheelImages[selectedValue][index] || '';
-            wheelImage.style.display = selectedValue ? 'block' : 'none';
-        }
-    </script>
 </head>
 <body>
-<img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo" class="logo">
-    <h1>Welcome to Sedan</h1>
+    <div class="logo">
+        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    </div>
+    <h1>Welcome to Sedans!</h1>
     <p>This is the sedan page.</p>
 
     <?php
     $sedans = [
-        ["name" => "Volkswagen Polo", "image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "description" => "A stylish and efficient compact car."],
-        ["name" => "Audi A3", "image" => "Images/audi%20A3.jpg", "description" => "A premium compact sedan with advanced technology."],
-        ["name" => "Lexus ES", "image" => "Images/2024%20Lexus%20ES.jpg", "description" => "A luxurious and comfortable mid-size sedan."]
+        ["name" => "Volkswagen Polo", "image" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg", "description" => "A stylish and efficient compact car.",
+        "custom_images" => [
+            "stock" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg",
+            "sport" => "Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Sport%20Wheel%2038905.jpg",
+            "alloy" => "Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Alloy%20Wheel%2084813.jpg",
+            "black" => "Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Black%20Rims%2088237.jpg"
+        ]],
+        ["name" => "Audi A3", "image" => "Images/audi%20A3.jpg", "description" => "A premium compact sedan with advanced technology.",
+        "custom_images" => [
+            "stock" => "Images/audi%20A3.jpg",
+            "sport" => "Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Sport%20Wheel%2010329.jpg",
+            "alloy" => "Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Alloy%20Wheel%2010329.jpg",
+            "black" => "Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Black%20Rims%2052221.jpg"
+        ]],
+        ["name" => "Lexus ES", "image" => "Images/2024%20Lexus%20ES.jpg", "description" => "A luxurious and comfortable mid-size sedan.",
+        "custom_images" => [
+            "stock" => "Images/2024%20Lexus%20ES.jpg",
+            "sport" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Sports%20Wheel%2034255.jpg",
+            "alloy" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Alloy%20Wheel%2034255.jpg",
+            "black" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Black%20Rims%2034255.jpg"
+        ]]
     ];
-
-    $wheelOptions = ["Standard Wheels", "Sport Wheels", "Alloy Wheels", "Black Rims"];
 
     foreach ($sedans as $index => $sedan): ?>
         <div class="polaroid">
-            <img id="wheel-image-<?= $index ?>" src="<?= $sedan['image'] ?>" alt="<?= $sedan['name'] ?>">
+            <img src="<?= htmlspecialchars($sedan['image']) ?>" alt="<?= htmlspecialchars($sedan['name']) ?>" id="sedan-image-<?= $index ?>">
             <div class="container">
-                <p><?= $sedan['name'] ?></p>
-                <p><?= $sedan['description'] ?></p>
-                <select id="wheel-select-<?= $index ?>" onchange="updateImage(<?= $index ?>)">
-                    
-                    <?php foreach ($wheelOptions as $wheel): ?>
-                        <option value="<?= $wheel ?>"><?= $wheel ?></option>
-                    <?php endforeach; ?>
+                <p><?= htmlspecialchars($sedan['name']) ?></p>
+                <p><?= htmlspecialchars($sedan['description']) ?></p>
+                <select onchange="changeImage(<?= $index ?>, this.value)">
+                    <option value="stock">Stock Wheels</option>
+                    <option value="sport">Sport Wheels</option>
+                    <option value="alloy">Alloy Wheels</option>
+                    <option value="black">Black Rims</option>
                 </select>
             </div>
         </div>
     <?php endforeach; ?>
+
+    <script>
+        function changeImage(index, value) {
+            const sedanImages = <?= json_encode(array_column($sedans, 'custom_images')) ?>;
+            const imageElement = document.getElementById(`sedan-image-${index}`);
+            imageElement.src = sedanImages[index][value];
+        }
+    </script>
 
 </body>
 </html>
