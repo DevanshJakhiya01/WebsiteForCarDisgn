@@ -72,30 +72,6 @@
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
-
-    <div class="polaroid">
-        <form method="POST" action="login.php">
-            <div class="container">
-                <h2>Login</h2>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required><br><br>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required><br><br>
-                <button type="submit" class="button">Login</button>
-            </div>
-        </form>
-        <form method="POST" action="signup.php">
-            <div class="container">
-                <h2>Sign Up</h2>
-                <label for="new_username">Username:</label>
-                <input type="text" id="new_username" name="new_username" required><br><br>
-                <label for="new_password">Password:</label>
-                <input type="password" id="new_password" name="new_password" required><br><br>
-                <button type="submit" class="button">Sign Up</button>
-            </div>
-        </form>
-    </div>
-
     <?php
     $cars = [
         [
