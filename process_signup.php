@@ -27,7 +27,7 @@ if ($result->num_rows > 0) {
     $sql = "INSERT INTO users (username, password) VALUES ('$user', '$pass')";
     if ($conn->query($sql) === TRUE) {
         // Redirect to login page after successful signup
-        header("Location: login.php");
+        header("Location: First page for project website.php");
         exit();
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
