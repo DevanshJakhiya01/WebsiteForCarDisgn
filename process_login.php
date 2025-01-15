@@ -22,7 +22,7 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     // Redirect to home page
-    header("Location: home.php");
+    header("Location: First page for project website.php");
     exit();
 } else {
     echo "Invalid username or password.";
