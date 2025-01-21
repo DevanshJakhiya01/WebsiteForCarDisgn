@@ -116,6 +116,15 @@
                     <option value="alloy">Alloy Wheels</option>
                     <option value="black">Black Rims</option>
                 </select>
+                <br><br>
+                <select>
+                    <option value="Defult">Defult</option>
+                    <option value="Candy Red">Candy Red</option>
+                    <option value="Perl Blue">Perl Blue</option>
+                    <option value="Detona Green">Detona green</option>
+                    <option value="Black Sparide Matte">Black Sparide Matte</option> 
+                </select>
+            </div>
             </div>
         </div>
     <?php endforeach; ?>
