@@ -117,7 +117,7 @@
                     <option value="steel">Steel Wheels</option>
                     <option value="aftermarket">Aftermarket Wheels</option>
                 </select>
-                <br><br>
+                <br>
                 <select>
                     <option value="Defult">Defult</option>
                     <option value="Candy Red">Candy Red</option>
