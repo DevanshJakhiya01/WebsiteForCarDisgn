@@ -118,7 +118,7 @@
                     <option value="aftermarket">Aftermarket Wheels</option>
                 </select>
                 <br><br>
-                <select>
+                <select onchange="changeImage(<?= $index ?>, this.value)">
                     <option value="Defult">Defult</option>
                     <option value="Candy Red">Candy Red</option>
                     <option value="Perl Blue">Perl Blue</option>
