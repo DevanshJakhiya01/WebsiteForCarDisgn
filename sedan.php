@@ -11,6 +11,7 @@
             flex-direction: column;
             align-items: center;
         }
+
         .logo {
             width: 300px;
             margin-bottom: 20px;
@@ -117,14 +118,13 @@
                     <option value="black">Black Rims</option>
                 </select>
                 <br><br>
-                <select>
+                <select onchange="changeImage(<?= $index ?>, this.value)">
                     <option value="Defult">Defult</option>
                     <option value="Candy Red">Candy Red</option>
                     <option value="Perl Blue">Perl Blue</option>
                     <option value="Detona Green">Detona green</option>
                     <option value="Black Sparide Matte">Black Sparide Matte</option> 
                 </select>
-            </div>
             </div>
         </div>
     <?php endforeach; ?>
