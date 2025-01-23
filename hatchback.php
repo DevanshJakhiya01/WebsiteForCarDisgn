@@ -42,22 +42,19 @@
             padding: 15px;
         }
 
-        .button {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        .select-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .button:hover {
-            background-color: #e9967a;
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
@@ -111,31 +108,41 @@
             <div class="container">
                 <p><?= htmlspecialchars($hatchback['name']) ?></p>
                 <p><?= htmlspecialchars($hatchback['description']) ?></p>
-                <select onchange="changeImage(<?= $index ?>, this.value)">
-                    <option value="stock">Stock Wheels</option>
-                    <option value="alloy">Alloy Wheels</option>
-                    <option value="steel">Steel Wheels</option>
-                    <option value="aftermarket">Aftermarket Wheels</option>
-                </select>
-                <br><br>
-                <select onchange="changeImage(<?= $index ?>, this.value)">
-                    <option value="Defult">Defult</option>
-                    <option value="Candy Red">Candy Red</option>
-                    <option value="Perl Blue">Perl Blue</option>
-                    <option value="Detona Green">Detona green</option>
-                    <option value="Black Sparide Matte">Black Sparide Matte</option> 
-                </select>
+                <div class="select-container">
+                    <select onchange="changeImage(<?= $index ?>, this.value, 'wheels')">
+                        <option value="stock">Stock Wheels</option>
+                        <option value="alloy">Alloy Wheels</option>
+                        <option value="steel">Steel Wheels</option>
+                        <option value="aftermarket">Aftermarket Wheels</option>
+                    </select>
+                    <select onchange="changeImage(<?= $index ?>, this.value, 'paint')">
+                        <option value="default">Default</option>
+                        <option value="candyred">Candy Red</option>
+                        <option value="perlblue">Perl Blue</option>
+                        <option value="detonagreen">Detona Green</option>
+                        <option value="blacksparidematte">Black Sparide Matte</option>
+                    </select>
+                </div>
             </div>
         </div>
     <?php endforeach; ?>
 
     <script>
-        function changeImage(index, value) {
-            const hatchbackImages = <?= json_encode(array_column($hatchbacks, 'custom_images')) ?>;
+        const hatchbackImages = <?= json_encode(array_column($hatchbacks, 'custom_images')) ?>;
+        function changeImage(index, value, type) {
+            let imageValue;
+            if (type === "wheels") {
+                imageValue = value;
+            } else {
+                imageValue = "stock"; 
+            }
             const imageElement = document.getElementById(`hatchback-image-${index}`);
-            imageElement.src = hatchbackImages[index][value];
+            if (hatchbackImages[index] && hatchbackImages[index][imageValue]) {
+                imageElement.src = hatchbackImages[index][imageValue];
+            } else {
+                console.error("Invalid image value:", value, "for hatchback", index);
+            }
         }
     </script>
-
 </body>
 </html>
