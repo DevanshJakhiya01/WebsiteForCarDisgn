@@ -13,7 +13,7 @@
         }
 
         .logo {
-            width: 300px; 
+            width: 300px;
             margin-bottom: 20px;
         }
 
@@ -42,22 +42,19 @@
             padding: 15px;
         }
 
-        .button {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        .select-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .button:hover {
-            background-color: #e9967a;
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
@@ -67,7 +64,7 @@
             .polaroid {
                 width: 80%;
             }
-            .logo{
+            .logo {
                 width: 400px;
             }
         }
@@ -116,6 +113,14 @@
                     <option value="black">Black Rims</option>
                     <option value="chrome">Chrome Rims</option>
                     <option value="offroad">Off-Road Tires</option>
+                </select>
+                <br><br>
+                <select onchange="changeImage(<?= $index ?>, this.value)">
+                <option value="Defult">Defult</option>
+                    <option value="Candy Red">Candy Red</option>
+                    <option value="Perl Blue">Perl Blue</option>
+                    <option value="Detona Green">Detona green</option>
+                    <option value="Black Sparide Matte">Black Sparide Matte</option>
                 </select>
             </div>
         </div>
