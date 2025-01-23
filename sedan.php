@@ -42,22 +42,19 @@
             padding: 15px;
         }
 
-        .button {
-            padding: 12px 24px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        .select-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .button:hover {
-            background-color: #e9967a;
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
@@ -111,31 +108,35 @@
             <div class="container">
                 <p><?= htmlspecialchars($sedan['name']) ?></p>
                 <p><?= htmlspecialchars($sedan['description']) ?></p>
-                <select onchange="changeImage(<?= $index ?>, this.value)">
-                    <option value="stock">Stock Wheels</option>
-                    <option value="sport">Sport Wheels</option>
-                    <option value="alloy">Alloy Wheels</option>
-                    <option value="black">Black Rims</option>
-                </select>
-                <br><br>
-                <select onchange="changeImage(<?= $index ?>, this.value)">
+                <div class="select-container">
+                    <select onchange="changeImage(<?= $index ?>, this.value)">
+                        <option value="stock">Stock Wheels</option>
+                        <option value="sport">Sport Wheels</option>
+                        <option value="alloy">Alloy Wheels</option>
+                        <option value="black">Black Rims</option>
+                    </select>
+                    <select onchange="changeImage(<?= $index ?>, this.value)">
                     <option value="Defult">Defult</option>
                     <option value="Candy Red">Candy Red</option>
                     <option value="Perl Blue">Perl Blue</option>
                     <option value="Detona Green">Detona green</option>
-                    <option value="Black Sparide Matte">Black Sparide Matte</option> 
-                </select>
+                    <option value="Black Sparide Matte">Black Sparide Matte</option>
+                    </select>
+                </div>
             </div>
         </div>
     <?php endforeach; ?>
 
     <script>
+        const sedanImages = <?= json_encode(array_column($sedans, 'custom_images')) ?>;
         function changeImage(index, value) {
-            const sedanImages = <?= json_encode(array_column($sedans, 'custom_images')) ?>;
             const imageElement = document.getElementById(`sedan-image-${index}`);
-            imageElement.src = sedanImages[index][value];
+            if (sedanImages[index] && sedanImages[index][value]) {
+                imageElement.src = sedanImages[index][value];
+            } else {
+                console.error("Invalid image value:", value, "for sedan", index);
+            }
         }
     </script>
-
 </body>
 </html>
