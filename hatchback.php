@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hatchbacks</title>
     <style>
         body {
@@ -84,36 +81,25 @@
     $hatchbacks = [
         ["name" => "Suzuki Swift", "image" => "Images/Suzuki_Swift_04.jpg", "description" => "A popular and fuel-efficient hatchback.",
         "custom_images" => [
-            "wheels" => [
-                "stock" => "Images/Suzuki_Swift_04.jpg",
-                "alloy" => "Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg",
-                "steel" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg",
-                "aftermarket" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg"
-            ],
-            "paint" => [
-                "default" => "Images/Suzuki_Swift_04.jpg",
-                "candyred" => "Images/7180c0aa-efa5-42d4-8f79-6db970074ee0_0.jpeg",
-                "perlblue" => "Images/Firefly%20Suzuki%20Swift%20Car%20Perl%20Blue%20Color%2067714.jpg",
-                "detonagreen" => "Images/Firefly%20Suzuki%20Swift%20Car%20Detona%20green%20Color%2062240.jpg",
-                "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20Car%20Black%20Sparide%20Matte%20Color%2067714.jpg"
-            ]
+            "stock" => "Images/Suzuki_Swift_04.jpg",
+            "alloy" => "Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg",
+            "steel" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg",
+            "aftermarket" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg",
         ]],
         ["name" => "Honda Civic", "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg", "description" => "Known for its reliability and sporty handling.",
         "custom_images" => [
-            "wheels" => [
-                "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
-                "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
-                "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
-                "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg"
-            ],
-            "paint" => [
-                "default" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
-                "candyred" => "Images/CandyRed_Civic.jpg",
-                "perlblue" => "Images/PerlBlue_Civic.jpg",
-                "detonagreen" => "Images/DetonaGreen_Civic.jpg",
-                "blacksparidematte" => "Images/BlackSparideMatte_Civic.jpg"
-            ]
-        ]]
+            "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
+            "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
+            "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
+            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg"
+        ]],
+        ["name" => "Volkswagen Golf", "image" => "Images/volkswagen-golf-2020-specs-01.jpg", "description" => "A classic hatchback with a premium feel.",
+        "custom_images" => [
+            "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
+            "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
+            "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
+            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg"
+        ]],
     ];
 
     foreach ($hatchbacks as $index => $hatchback): ?>
@@ -143,19 +129,19 @@
 
     <script>
         const hatchbackImages = <?= json_encode(array_column($hatchbacks, 'custom_images')) ?>;
-        let selections = Array(hatchbackImages.length).fill({ wheels: "stock", paint: "default" });
-
         function changeImage(index, value, type) {
-            selections[index] = { ...selections[index], [type]: value };
-            const selectedWheels = selections[index].wheels;
-            const selectedPaint = selections[index].paint;
-
-            let newImage = hatchbackImages[index].wheels[selectedWheels];
-            if (hatchbackImages[index].paint[selectedPaint]) {
-                newImage = hatchbackImages[index].paint[selectedPaint];
+            let imageValue;
+            if (type === "wheels") {
+                imageValue = value;
+            } else {
+                imageValue = "stock"; 
             }
-
-            document.getElementById(`hatchback-image-${index}`).src = newImage;
+            const imageElement = document.getElementById(`hatchback-image-${index}`);
+            if (hatchbackImages[index] && hatchbackImages[index][imageValue]) {
+                imageElement.src = hatchbackImages[index][imageValue];
+            } else {
+                console.error("Invalid image value:", value, "for hatchback", index);
+            }
         }
     </script>
 </body>
