@@ -85,20 +85,32 @@
             "alloy" => "Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg",
             "steel" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg",
             "aftermarket" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg",
+            "candyred" => "Images/Firefly%20Suzuki%20Swift%20candyred.jpg",
+            "perlblue" => "Images/Firefly%20Suzuki%20Swift%20perlblue.jpg",
+            "detonagreen" => "Images/Firefly%20Suzuki%20Swift%20detonagreen.jpg",
+            "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20blacksparidematte.jpg",
         ]],
         ["name" => "Honda Civic", "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg", "description" => "Known for its reliability and sporty handling.",
         "custom_images" => [
             "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
             "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
             "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
-            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg"
+            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg",
+            "candyred" => "Images/Firefly%20Honda%20Civic%20candyred.jpg",
+            "perlblue" => "Images/Firefly%20Honda%20Civic%20perlblue.jpg",
+            "detonagreen" => "Images/Firefly%20Honda%20Civic%20detonagreen.jpg",
+            "blacksparidematte" => "Images/Firefly%20Honda%20Civic%20blacksparidematte.jpg",
         ]],
         ["name" => "Volkswagen Golf", "image" => "Images/volkswagen-golf-2020-specs-01.jpg", "description" => "A classic hatchback with a premium feel.",
         "custom_images" => [
             "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
             "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
             "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
-            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg"
+            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg",
+            "candyred" => "Images/Firefly%20Volkswagen%20Golf%20candyred.jpg",
+            "perlblue" => "Images/Firefly%20Volkswagen%20Golf%20perlblue.jpg",
+            "detonagreen" => "Images/Firefly%20Volkswagen%20Golf%20detonagreen.jpg",
+            "blacksparidematte" => "Images/Firefly%20Volkswagen%20Golf%20blacksparidematte.jpg",
         ]],
     ];
 
@@ -133,6 +145,8 @@
             let imageValue;
             if (type === "wheels") {
                 imageValue = value;
+            } else if (type === "paint") {
+                imageValue = value !== 'default' ? value : 'stock';
             } else {
                 imageValue = "stock"; 
             }
