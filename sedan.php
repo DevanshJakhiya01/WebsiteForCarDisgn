@@ -118,10 +118,10 @@
                 "sport" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Sports%20Wheel%2034255.jpg",
                 "alloy" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Alloy%20Wheel%2034255.jpg",
                 "black" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Black%20Rims%2034255.jpg",
-                "candyred" => "Images/Firefly%20Lexus%20ES%20Candy%20Red%20color%2045678.jpg",
-                "perlblue" => "Images/Firefly%20Lexus%20ES%20Perl%20Blue%20color%2045678.jpg",
-                "detonagreen" => "Images/Firefly%20Lexus%20ES%20Detona%20Green%20color%2045678.jpg",
-                "blacksparidematte" => "Images/Firefly%20Lexus%20ES%20Black%20Sparide%20Matte%20color%2045678.jpg"
+                "candyred" => "Images/Firefly%20Lexus%20ES%20candy%20red%20color%20car%2094718.jpg",
+                "perlblue" => "Images/Firefly%20Lexus%20ES%20Perl%20Blue%20car%2094718.jpg",
+                "detonagreen" => "Images/Firefly%20Lexus%20ES%20Detona%20Green%20car%2094718.jpg",
+                "blacksparidematte" => "Images/Firefly%20Lexus%20ES%20Black%20Sparide%20Matte%20car%2094718.jpg"
             ]
         ]
     ];
