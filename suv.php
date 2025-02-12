@@ -88,10 +88,10 @@
                 "black" => "Images/Firefly%20golden%20Land%20Rover%20Defender%20with%20Black%20rims%2013603.jpg",
                 "chrome" => "Images/Firefly%20golden%20Land%20Rover%20Defender%20with%20Chrome%20rims%2013603.jpg",
                 "offroad" => "Images/Firefly%20golden%20Land%20Rover%20Defender%20with%20Off%20road%20tires%2054774.jpg",
-                "candyred" => "Images/Firefly%20Land%20Rover%20Defender%20Candy%20Red%20color%2012345.jpg",
-                "perlblue" => "Images/Firefly%20Land%20Rover%20Defender%20Perl%20Blue%20color%2012345.jpg",
-                "detonagreen" => "Images/Firefly%20Land%20Rover%20Defender%20Detona%20Green%20color%2012345.jpg",
-                "blacksparidematte" => "Images/Firefly%20Land%20Rover%20Defender%20Black%20Sparide%20Matte%20color%2012345.jpg",
+                "candyred" => "Images/Firefly%20Land%20Rover%20Defender%20candy%20red%20color%20car%2054266.jpg",
+                "perlblue" => "Images/Firefly%20Land%20Rover%20Defender%20Perl%20Blue%20color%20car%206771.jpg",
+                "detonagreen" => "Images/Firefly%20Land%20Rover%20Defender%20Detona%20green%20car%206771.jpg",
+                "blacksparidematte" => "Images/Firefly%20Land%20Rover%20Defender%20Black%20Sparide%20Matte%20car%2016608.jpg",
             ]
         ],
         [
@@ -103,10 +103,10 @@
                 "black" => "Images/Firefly%20Red%20Mahindra%20XUV%20700-%20A%20Luxurious%20with%20Black%20Rims%204514.jpg",
                 "chrome" => "Images/Firefly%20Red%20Mahindra%20XUV%20700-%20A%20Luxurious%20with%20Chrome%20Rims%204514.jpg",
                 "offroad" => "Images/Firefly%20Red%20Mahindra%20XUV%20700-%20A%20Luxurious%20with%20Off%20road%20tires%204514.jpg",
-                "candyred" => "Images/Firefly%20Mahindra%20XUV%20700%20Candy%20Red%20color%2012345.jpg",
-                "perlblue" => "Images/Firefly%20Mahindra%20XUV%20700%20Perl%20Blue%20color%2012345.jpg",
-                "detonagreen" => "Images/Firefly%20Mahindra%20XUV%20700%20Detona%20Green%20color%2012345.jpg",
-                "blacksparidematte" => "Images/Firefly%20Mahindra%20XUV%20700%20Black%20Sparide%20Matte%20color%2012345.jpg",
+                "candyred" => "Images/Firefly%20Mahindra%20XUV%20700%20Candy%20red%20car%2096286.jpg",
+                "perlblue" => "Images/Firefly%20Mahindra%20XUV%20700%20Perl%20blue%20car%2096286.jpg",
+                "detonagreen" => "Images/Firefly%20Mahindra%20XUV%20700%20Detona%20green%20car%2056055.jpg",
+                "blacksparidematte" => "Images/Firefly%20Mahindra%20XUV%20700%20Black%20Sparide%20Matte%20car%2096286.jpg",
             ]
         ],
         [
@@ -118,10 +118,10 @@
                 "black" => "Images/Firefly%20Golden%20XT6%20Cadillac%20with%20black%20Rims%2089686.jpg",
                 "chrome" => "Images/Firefly%20Golden%20XT6%20Cadillac%20with%20Chrome%20Rims%2089686.jpg",
                 "offroad" => "Images/Firefly%20Golden%20XT6%20Cadillac%20with%20Off%20road%20tires%2089686.jpg",
-                "candyred" => "Images/Firefly%20Cadillac%20XT6%20Candy%20Red%20color%2012345.jpg",
-                "perlblue" => "Images/Firefly%20Cadillac%20XT6%20Perl%20Blue%20color%2012345.jpg",
-                "detonagreen" => "Images/Firefly%20Cadillac%20XT6%20Detona%20Green%20color%2012345.jpg",
-                "blacksparidematte" => "Images/Firefly%20Cadillac%20XT6%20Black%20Sparide%20Matte%20color%2012345.jpg",
+                "candyred" => "Images/Firefly%20XT6%20Cadillac%20Candy%20Red%20color%20car%2012177.jpg",
+                "perlblue" => "Images/Firefly%20XT6%20Cadillac%20Perl%20blue%20color%20car%209092.jpg",
+                "detonagreen" => "Images/Firefly%20XT6%20Cadillac%20Detona%20green%20color%20car%209092.jpg",
+                "blacksparidematte" => "Images/Firefly%20XT6%20Cadillac%20Black%20Sparide%20Matte%20color%20car%206192.jpg",
             ]
         ],
     ];
