@@ -5,7 +5,8 @@
         body {
             font-family: sans-serif;
             margin: 20px;
-            background-color: lightskyblue;
+            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-size: auto;
             color: red;
             display: flex;
             flex-direction: column;
