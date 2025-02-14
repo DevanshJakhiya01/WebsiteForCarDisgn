@@ -71,7 +71,7 @@
         }
     </style>
 </head>
-<body>
+<body><br><br>
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
