@@ -7,7 +7,7 @@
             margin: 20px;
             background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
             background-size: auto;
-            color: red;
+            color:red;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -71,7 +71,7 @@
         }
     </style>
 </head>
-<body>
+<body><br><br>
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
