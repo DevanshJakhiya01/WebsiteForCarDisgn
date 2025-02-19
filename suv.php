@@ -5,7 +5,7 @@
         body {
             font-family: sans-serif;
             margin: 20px;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: auto;
             color: red;
             display: flex;
@@ -57,6 +57,19 @@
             width: 100%;
             box-sizing: border-box;
         }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
 
         @media (min-width: 768px) {
             body {
@@ -79,6 +92,17 @@
     <p>This is the SUV page.</p>
 
     <?php
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "car_customization_db";
+
+    // Create connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
     $suvs = [
         [
             "name" => "Land Rover Defender",
@@ -147,6 +171,7 @@
                         <option value="detonagreen">Detona Green</option>
                         <option value="blacksparidematte">Black Sparide Matte</option>
                     </select>
+                    <button onclick="submitCustomization(<?= $index ?>)">Submit</button>
                 </div>
             </div>
         </div>
@@ -154,21 +179,31 @@
 
     <script>
         const suvImages = <?= json_encode(array_column($suvs, 'custom_images')) ?>;
+
         function changeImage(index, value, type) {
-            let imageValue;
-            if (type === "wheels") {
-                imageValue = value;
-            } else if (type === "paint") {
-                imageValue = value !== 'default' ? value : 'stock';
-            } else {
-                imageValue = "stock";
-            }
             const imageElement = document.getElementById(`suv-image-${index}`);
-            if (suvImages[index] && suvImages[index][imageValue]) {
-                imageElement.src = suvImages[index][imageValue];
+            const currentImage = suvImages[index];
+
+            let imageKey;
+            if (type === "wheels") {
+                imageKey = value;
+            } else if (type === "paint") {
+                imageKey = value !== 'default' ? value : 'stock';
+            } else {
+                imageKey = "stock";
+            }
+
+            if (currentImage && currentImage[imageKey]) {
+                imageElement.src = currentImage[imageKey];
             } else {
                 console.error("Invalid image value:", value, "for SUV", index);
             }
+        }
+
+        function submitCustomization(index) {
+            const imageElement = document.getElementById(`suv-image-${index}`);
+            const selectedImage = imageElement.src;
+            alert(`Customization submitted for SUV ${index + 1} with image: ${selectedImage}`);
         }
     </script>
 </body>

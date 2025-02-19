@@ -5,8 +5,8 @@
         body {
             font-family: sans-serif;
             margin: 20px;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
-            background-size: auto;
+            background-image: url("Images/doddles of car in whole page in pink and red color for website background.jpg");
+            background-size: cover;
             color: red;
             display: flex;
             flex-direction: column;
@@ -57,6 +57,20 @@
             width: 100%;
             box-sizing: border-box;
         }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
+
 
         @media (min-width: 768px) {
             body {
@@ -71,7 +85,7 @@
         }
     </style>
 </head>
-<body><br><br>
+<body>
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
@@ -79,39 +93,54 @@
     <p>This is the hatchback page.</p>
 
     <?php
+    // Database connection
+    
+
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "car_customization_db";
+    
+    // Create connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
     $hatchbacks = [
         ["name" => "Suzuki Swift", "image" => "Images/Suzuki_Swift_04.jpg", "description" => "A popular and fuel-efficient hatchback.",
         "custom_images" => [
             "stock" => "Images/Suzuki_Swift_04.jpg",
-            "alloy" => "Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg",
-            "steel" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg",
-            "aftermarket" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg",
-            "candyred" => "Images/Firefly%20Maruti%20Suzuki%20Swift%20Cany%20Red%20color%2065968.jpg",
-            "perlblue" => "Images/Firefly%20Suzuki%20Swift%20Car%20Perl%20Blue%20Color%2067714.jpg",
-            "detonagreen" => "Images/Firefly%20Suzuki%20Swift%20Car%20Detona%20green%20Color%2062240.jpg",
-            "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20Car%20Black%20Sparide%20Matte%20Color%2067714.jpg",
+            "alloy" => "Images/Firefly imagine red color Maruti Suzuki Swift 2024 with Alloy Wheels 48339.jpg",
+            "steel" => "Images/Firefly red color Maruti Suzuki Swift 2024 with Steel Wheels 59797.jpg",
+            "aftermarket" => "Images/Firefly red color Maruti Suzuki Swift 2024 with Aftermarket Wheels 86150.jpg",
+            "candyred" => "Images/Firefly Maruti Suzuki Swift Cany Red color 65968.jpg",
+            "perlblue" => "Images/Firefly Suzuki Swift Car Perl Blue Color 67714.jpg",
+            "detonagreen" => "Images/Firefly Suzuki Swift Car Detona green Color 62240.jpg",
+            "blacksparidematte" => "Images/Firefly Suzuki Swift Car Black Sparide Matte Color 67714.jpg",
         ]],
         ["name" => "Honda Civic", "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg", "description" => "Known for its reliability and sporty handling.",
         "custom_images" => [
             "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
-            "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
-            "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
-            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg",
-            "candyred" => "Images/Firefly%20Honda%20civic%20car%20in%20Candy%20red%20color%2023588.jpg",
-            "perlblue" => "Images/Firefly%20Honda%20Civic%20car%20in%20Perl%20Blue%20color%2023588.jpg",
-            "detonagreen" => "Images/Firefly%20Honda%20Civic%20car%20in%20Detona%20Green%20color%2023588.jpg",
-            "blacksparidematte" => "Images/Firefly%20Honda%20Civic%20car%20in%20Black%20Sparide%20Matte%20color%2015388.jpg",
+            "alloy" => "Images/Firefly honda civic red color with Alloy whells 85734.jpg",
+            "steel" => "Images/Firefly Honda civic red color with Steel wheels 85734.jpg",
+            "aftermarket" => "Images/Firefly Honda civic red color with Aftermarket wheels 85734.jpg",
+            "candyred" => "Images/Firefly Honda civic car in Candy red color 23588.jpg",
+            "perlblue" => "Images/Firefly Honda Civic car in Perl Blue color 23588.jpg",
+            "detonagreen" => "Images/Firefly Honda Civic car in Detona Green color 23588.jpg",
+            "blacksparidematte" => "Images/Firefly Honda Civic car in Black Sparide Matte color 15388.jpg",
         ]],
         ["name" => "Volkswagen Golf", "image" => "Images/volkswagen-golf-2020-specs-01.jpg", "description" => "A classic hatchback with a premium feel.",
         "custom_images" => [
             "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
-            "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
-            "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
-            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg",
-            "candyred" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Candy%20Red%20color%2084012.jpg",
-            "perlblue" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Perl%20Blue%20color%2010246.jpg",
-            "detonagreen" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Detona%20Green%20color%2010246.jpg",
-            "blacksparidematte" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Black%20Sparide%20Matte%20color%2084012.jpg",
+            "alloy" => "Images/Firefly Volkswagen Golf Green color with Alloy wheel 69604.jpg",
+            "steel" => "Images/Firefly Volkswagen Golf Green color with Steel wheel 69604.jpg",
+            "aftermarket" => "Images/Firefly Volkswagen Golf Green color with Aftermarket wheel 69604.jpg",
+            "candyred" => "Images/Firefly Volkswagen golf car in Candy Red color 84012.jpg",
+            "perlblue" => "Images/Firefly Volkswagen golf car in Perl Blue color 10246.jpg",
+            "detonagreen" => "Images/Firefly Volkswagen golf car in Detona Green color 10246.jpg",
+            "blacksparidematte" => "Images/Firefly Volkswagen golf car in Black Sparide Matte color 84012.jpg",
         ]],
     ];
 
@@ -135,6 +164,7 @@
                         <option value="detonagreen">Detona Green</option>
                         <option value="blacksparidematte">Black Sparide Matte</option>
                     </select>
+                    <button onclick="submitCustomization(<?= $index ?>)">Submit</button>
                 </div>
             </div>
         </div>
@@ -157,6 +187,30 @@
             } else {
                 console.error("Invalid image value:", value, "for hatchback", index);
             }
+        }
+
+        function submitCustomization(index) {
+            const selectedWheels = document.querySelector(`select[onchange='changeImage(${index}, this.value, "wheels")']`).value;
+            const selectedPaint = document.querySelector(`select[onchange='changeImage(${index}, this.value, "paint")']`).value;
+            const hatchbackName = <?= json_encode(array_column($hatchbacks, 'name')) ?>[index];
+            
+
+            fetch('submit_customization.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: hatchbackName, wheels: selectedWheels, paint: selectedPaint })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Your car customization request has been submitted!');
+                } else {
+                    alert('Failed to submit customization request.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </body>

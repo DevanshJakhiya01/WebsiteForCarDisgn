@@ -5,9 +5,9 @@
         body {
             font-family: sans-serif;
             margin: 20px;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles of car in whole page in pink and red color for website background.jpg");
             background-size: auto;
-            color:red;
+            color: red;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -57,6 +57,21 @@
             width: 100%;
             box-sizing: border-box;
         }
+        
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
 
         @media (min-width: 768px) {
             body {
@@ -71,14 +86,26 @@
         }
     </style>
 </head>
-<body><br><br>
+<body>
     <div class="logo">
-        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+        <img src="Images/Devansh Car Customization logo 1.jpg" alt="Devansh Car Customization Logo">
     </div>
     <h1>Welcome to Sedans!</h1>
     <p>This is the sedan page.</p>
 
     <?php
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "car_customization_db";
+
+    // Create connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
     $sedans = [
         [
             "name" => "Volkswagen Polo",
@@ -86,43 +113,43 @@
             "description" => "A stylish and efficient compact car.",
             "custom_images" => [
                 "stock" => "Images/El nuevo Volkswagen Polo llegará a México en 2023.jpeg",
-                "sport" => "Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Sport%20Wheel%2038905.jpg",
-                "alloy" => "Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Alloy%20Wheel%2084813.jpg",
-                "black" => "Images/Firefly%20Volkswagen%20Polo%20in%20purple%20color%20with%20Black%20Rims%2088237.jpg",
-                "candyred" => "Images/Firefly%20Volkswagen%20polo%20candy%20red%20color%2036117.jpg",
-                "perlblue" => "Images/Firefly%20Volkswagen%20polo%20purl%20blue%20color%2070934.jpg",
-                "detonagreen" => "Images/Firefly%20Volkswagen%20polo%20Detona%20Green%20color%2070934.jpg",
-                "blacksparidematte" => "Images/Firefly%20Volkswagen%20polo%20Black%20Sparide%20Matte%20color%2097521.jpg"
+                "sport" => "Images/Firefly Volkswagen Polo in purple color with Sport Wheel 38905.jpg",
+                "alloy" => "Images/Firefly Volkswagen Polo in purple color with Alloy Wheel 84813.jpg",
+                "black" => "Images/Firefly Volkswagen Polo in purple color with Black Rims 88237.jpg",
+                "candyred" => "Images/Firefly Volkswagen polo candy red color 36117.jpg",
+                "perlblue" => "Images/Firefly Volkswagen polo purl blue color 70934.jpg",
+                "detonagreen" => "Images/Firefly Volkswagen polo Detona Green color 70934.jpg",
+                "blacksparidematte" => "Images/Firefly Volkswagen polo Black Sparide Matte color 97521.jpg"
             ]
         ],
         [
             "name" => "Audi A3",
-            "image" => "Images/audi%20A3.jpg",
+            "image" => "Images/audi A3.jpg",
             "description" => "A premium compact sedan with advanced technology.",
             "custom_images" => [
-                "stock" => "Images/audi%20A3.jpg",
-                "sport" => "Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Sport%20Wheel%2010329.jpg",
-                "alloy" => "Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Alloy%20Wheel%2010329.jpg",
-                "black" => "Images/Firefly%20Audi%20A3%20Blue%20in%20color%20with%20Black%20Rims%2052221.jpg",
-                "candyred" => "Images/Firefly%20Audi%20A3%20candy%20red%20color%20car%2094718.jpg",
-                "perlblue" => "Images/Firefly%20Audi%20A3%20purl%20blue%20color%20car%2094718.jpg",
-                "detonagreen" => "Images/Firefly%20Audi%20A3%20Detona%20Green%20color%20car%2094718.jpg",
-                "blacksparidematte" => "Images/Firefly%20Audi%20A3%20Black%20Sparide%20Matte%20color%20car%2094718.jpg"
+                "stock" => "Images/audi A3.jpg",
+                "sport" => "Images/Firefly Audi A3 Blue in color with Sport Wheel 10329.jpg",
+                "alloy" => "Images/Firefly Audi A3 Blue in color with Alloy Wheel 10329.jpg",
+                "black" => "Images/Firefly Audi A3 Blue in color with Black Rims 52221.jpg",
+                "candyred" => "Images/Firefly Audi A3 candy red color car 94718.jpg",
+                "perlblue" => "Images/Firefly Audi A3 purl blue color car 94718.jpg",
+                "detonagreen" => "Images/Firefly Audi A3 Detona Green color car 94718.jpg",
+                "blacksparidematte" => "Images/Firefly Audi A3 Black Sparide Matte color car 94718.jpg"
             ]
         ],
         [
             "name" => "Lexus ES",
-            "image" => "Images/2024%20Lexus%20ES.jpg",
+            "image" => "Images/2024 Lexus ES.jpg",
             "description" => "A luxurious and comfortable mid-size sedan.",
             "custom_images" => [
-                "stock" => "Images/2024%20Lexus%20ES.jpg",
-                "sport" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Sports%20Wheel%2034255.jpg",
-                "alloy" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Alloy%20Wheel%2034255.jpg",
-                "black" => "Images/Firefly%20Lexus%20ES%20in%20Golden%20color%20with%20Black%20Rims%2034255.jpg",
-                "candyred" => "Images/Firefly%20Lexus%20ES%20candy%20red%20color%20car%2094718.jpg",
-                "perlblue" => "Images/Firefly%20Lexus%20ES%20Perl%20Blue%20car%2094718.jpg",
-                "detonagreen" => "Images/Firefly%20Lexus%20ES%20Detona%20Green%20car%2094718.jpg",
-                "blacksparidematte" => "Images/Firefly%20Lexus%20ES%20Black%20Sparide%20Matte%20car%2094718.jpg"
+                "stock" => "Images/2024 Lexus ES.jpg",
+                "sport" => "Images/Firefly Lexus ES in Golden color with Sports Wheel 34255.jpg",
+                "alloy" => "Images/Firefly Lexus ES in Golden color with Alloy Wheel 34255.jpg",
+                "black" => "Images/Firefly Lexus ES in Golden color with Black Rims 34255.jpg",
+                "candyred" => "Images/Firefly Lexus ES candy red color car 94718.jpg",
+                "perlblue" => "Images/Firefly Lexus ES Perl Blue car 94718.jpg",
+                "detonagreen" => "Images/Firefly Lexus ES Detona Green car 94718.jpg",
+                "blacksparidematte" => "Images/Firefly Lexus ES Black Sparide Matte car 94718.jpg"
             ]
         ]
     ];
@@ -147,6 +174,7 @@
                         <option value="detonagreen">Detona Green</option>
                         <option value="blacksparidematte">Black Sparide Matte</option>
                     </select>
+                    <button onclick="submitCustomization(<?= $index ?>)">Submit</button>
                 </div>
             </div>
         </div>
@@ -154,6 +182,7 @@
 
     <script>
         const sedanImages = <?= json_encode(array_column($sedans, 'custom_images')) ?>;
+
         function changeImage(index, value, type) {
             let imageValue;
             if (type === "wheels") {
@@ -163,12 +192,20 @@
             } else {
                 imageValue = "stock";
             }
+
             const imageElement = document.getElementById(`sedan-image-${index}`);
             if (sedanImages[index] && sedanImages[index][imageValue]) {
                 imageElement.src = sedanImages[index][imageValue];
             } else {
                 console.error("Invalid image value:", value, "for sedan", index);
             }
+        }
+
+        function submitCustomization(index) {
+            const selectedWheels = document.querySelector(`#sedan-image-${index}`).previousElementSibling.querySelector('select').value;
+            const selectedPaint = document.querySelector(`#sedan-image-${index}`).nextElementSibling.querySelector('select').value;
+            console.log(`Customization submitted for Sedan ${index}: Wheels - ${selectedWheels}, Paint - ${selectedPaint}`);
+            alert(`Customization submitted for Sedan ${index + 1}: Wheels - ${selectedWheels}, Paint - ${selectedPaint}`);
         }
     </script>
 </body>
