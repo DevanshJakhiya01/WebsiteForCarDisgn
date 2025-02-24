@@ -93,9 +93,6 @@
     <p>This is the hatchback page.</p>
 
     <?php
-    // Database connection
-    
-
     $servername = "localhost";
     $username = "root";
     $password = "";
