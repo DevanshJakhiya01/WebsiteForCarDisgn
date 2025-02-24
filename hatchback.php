@@ -71,7 +71,7 @@
             background-color: darkred;
         }
 
-
+        /* Media query for larger screens */
         @media (min-width: 768px) {
             body {
                 margin: 50px;
@@ -97,10 +97,11 @@
     $username = "root";
     $password = "";
     $dbname = "car_customization_db";
-    
+
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
-    
+
+    // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
@@ -190,8 +191,8 @@
             const selectedWheels = document.querySelector(`select[onchange='changeImage(${index}, this.value, "wheels")']`).value;
             const selectedPaint = document.querySelector(`select[onchange='changeImage(${index}, this.value, "paint")']`).value;
             const hatchbackName = <?= json_encode(array_column($hatchbacks, 'name')) ?>[index];
-            
 
+            // AJAX request to submit_customization.php
             fetch('submit_customization.php', {
                 method: 'POST',
                 headers: {
@@ -204,7 +205,7 @@
                 if (data.success) {
                     alert('Your car customization request has been submitted!');
                 } else {
-                    alert('Failed to submit customization request.');
+                    alert('Failed to submit customization request: ' + data.message);
                 }
             })
             .catch(error => console.error('Error:', error));
