@@ -2,11 +2,11 @@
 <head>
     <title>Hatchbacks</title>
     <style>
-        body {
+       body {
             font-family: sans-serif;
             margin: 20px;
-            background-image: url("Images/doddles of car in whole page in pink and red color for website background.jpg");
-            background-size: cover;
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
+            background-size: auto;
             color: red;
             display: flex;
             flex-direction: column;
@@ -70,7 +70,6 @@
         button:hover {
             background-color: darkred;
         }
-
 
         @media (min-width: 768px) {
             body {
