@@ -95,7 +95,7 @@
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "car_customization_db";
+    $dbname = "car_customization";
 
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
