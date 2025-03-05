@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-size: auto;
+            color: red;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .logo {
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: darksalmon;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .form-container button:hover {
+            background-color: #e9967a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    </div>
+
+    <div class="form-container">
+        <a href="admin.html" style="color: white; background-color: darksalmon; padding: 10px; text-decoration: none; border-radius: 5px;">Admin Panel</a>
+        <h2>Admin Login</h2>
+        <form action="admin_dashboard.html" method="POST">
+            <input type="text" name="admin_username" placeholder="Admin Username" required>
+            <input type="password" name="admin_password" placeholder="Admin Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>
