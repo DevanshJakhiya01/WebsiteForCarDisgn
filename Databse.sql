@@ -1,5 +1,3 @@
-CREATE DATABASE car_customization;
-
 USE car_customization;
 
 -- Table for regular users
@@ -19,3 +17,25 @@ CREATE TABLE admins (
 
 -- Insert a sample admin (for testing)
 INSERT INTO admins (admin_username, admin_password) VALUES ('Devansh', 'Sonakshi01');
+USE car_customization;
+
+-- Table for orders
+CREATE TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Table for order payments
+CREATE TABLE order_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_amount DECIMAL(10, 2) NOT NULL,
+    payment_method ENUM('credit_card', 'paypal', 'cash_on_delivery') NOT NULL,
+    payment_status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
