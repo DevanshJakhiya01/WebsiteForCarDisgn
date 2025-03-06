@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -13,26 +15,50 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch user details
+// Initialize variables
+$row = [];
+$error_message = "";
+
+// Fetch user details if ID is provided
 if (isset($_GET['id'])) {
-    $user_id = $_GET['id'];
-    $sql = "SELECT id, username, email FROM users WHERE id = $user_id";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
+    $user_id = intval($_GET['id']); // Sanitize the input
+    $sql = "SELECT id, username, email FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+    } else {
+        $error_message = "User not found.";
+    }
+} else {
+    $error_message = "No user ID provided.";
 }
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $user_id = $_POST['id'];
-    $username = $_POST['username'];
-    $email = $_POST['email'];
+    $user_id = intval($_POST['id']); // Sanitize the input
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
 
-    $sql = "UPDATE users SET username = '$username', email = '$email' WHERE id = $user_id";
-    if ($conn->query($sql) === TRUE) {
-        echo "<script>alert('User updated successfully!');</script>";
-        echo "<script>window.location.href = 'admin_dashboard.php';</script>";
+    // Validate inputs
+    if (empty($username) || empty($email)) {
+        $error_message = "Please fill in all fields.";
     } else {
-        echo "<script>alert('Error updating user: " . $conn->error . "');</script>";
+        // Update user details
+        $sql = "UPDATE users SET username = ?, email = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssi", $username, $email, $user_id);
+
+        if ($stmt->execute()) {
+            echo "<script>alert('User updated successfully!');</script>";
+            echo "<script>window.location.href = 'admin_dashboard.php';</script>";
+            exit();
+        } else {
+            $error_message = "Error updating user: " . $stmt->error;
+        }
     }
 }
 ?>
@@ -49,11 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-family: sans-serif;
             margin: 20px;
             background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
-            background-size: auto;
+            background-size: cover;
             color: red;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
         .logo {
             width: 300px;
@@ -68,20 +96,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: white;
             padding: 20px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            width: 300px;
-            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            text-align: center;
         }
         .form-container input {
             width: 100%;
             padding: 10px;
-            margin: 5px 0;
+            margin: 10px 0;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 5px;
+            font-size: 16px;
         }
         .form-container button {
             width: 100%;
             padding: 10px;
-            background-color: red;
+            background-color: darksalmon;
             border: none;
             color: white;
             font-size: 16px;
@@ -90,7 +121,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             transition: background-color 0.3s ease;
         }
         .form-container button:hover {
-            background-color: darkred;
+            background-color: #e9967a;
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -102,14 +137,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="form-container">
         <h2>Edit User</h2>
-        <form method="POST" action="edit_user.php">
-            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-            <label for="username">Username:</label>
-            <input type="text" name="username" value="<?= $row['username'] ?>" required><br>
-            <label for="email">Email:</label>
-            <input type="email" name="email" value="<?= $row['email'] ?>" required><br>
-            <button type="submit">Update</button>
-        </form>
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
+        <?php endif; ?>
+        <?php if (!empty($row)): ?>
+            <form method="POST" action="edit_user.php">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($row['id']) ?>">
+                <label for="username">Username:</label>
+                <input type="text" name="username" value="<?= htmlspecialchars($row['username']) ?>" required><br>
+                <label for="email">Email:</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($row['email']) ?>" required><br>
+                <button type="submit">Update</button>
+            </form>
+        <?php else: ?>
+            <p>No user data available.</p>
+        <?php endif; ?>
     </div>
 </body>
 </html>
