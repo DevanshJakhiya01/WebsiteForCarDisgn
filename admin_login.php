@@ -15,34 +15,49 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Insert admin user (run this only once)
+$password = "Sonakshi01";
+$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+$sql = "INSERT INTO admins (admin_username, admin_password) VALUES ('Devansh', '$hashed_password')";
+if ($conn->query($sql) === TRUE) {
+    echo "<script>alert('Admin user added successfully.');</script>";
+} else {
+    echo "<script>alert('Error adding admin user: " . $conn->error . "');</script>";
+}
+// End of admin user insertion code
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $admin_username = $_POST['admin_username'];
-    $admin_password = $_POST['admin_password'];
+    $admin_username = trim($_POST['admin_username']);
+    $admin_password = trim($_POST['admin_password']);
 
-    // Fetch admin details from the database
-    $sql = "SELECT id, admin_username, admin_password FROM admins WHERE admin_username = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $admin_username);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Validate inputs
+    if (empty($admin_username) || empty($admin_password)) {
+        $error_message = "Please fill in all fields.";
+    } else {
+        // Fetch admin details from the database
+        $sql = "SELECT id, admin_username, admin_password FROM admins WHERE admin_username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $admin_username);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        // Verify password
-        if (password_verify($admin_password, $row['admin_password'])) {
-            // Set session variables
-            $_SESSION['admin_id'] = $row['id'];
-            $_SESSION['admin_username'] = $row['admin_username'];
-
-            // Redirect to admin dashboard
-            header("Location: admin_dashboard.php");
-            exit();
+        if ($result->num_rows == 1) {
+            $row = $result->fetch_assoc();
+            // Verify password
+            if (password_verify($admin_password, $row['admin_password'])) {
+                // Login successful
+                $_SESSION['admin_id'] = $row['id'];
+                $_SESSION['admin_username'] = $row['admin_username'];
+                header("Location: admin_dashboard.php"); // Redirect to admin dashboard
+                exit();
+            } else {
+                $error_message = "Invalid username or password.";
+            }
         } else {
             $error_message = "Invalid username or password.";
         }
-    } else {
-        $error_message = "Invalid username or password.";
     }
 }
 ?>
@@ -59,11 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-family: sans-serif;
             margin: 20px;
             background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
-            background-size: auto;
+            background-size: cover;
             color: red;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
         .logo {
             width: 300px;
@@ -78,16 +95,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: white;
             padding: 20px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            width: 300px;
-            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
             text-align: center;
         }
         .form-container input {
             width: 100%;
             padding: 10px;
-            margin: 5px 0;
+            margin: 10px 0;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 5px;
+            font-size: 16px;
         }
         .form-container button {
             width: 100%;
@@ -109,12 +128,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         .admin-panel-link {
             display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: darksalmon;
+            margin-top: 10px;
             color: white;
+            background-color: darksalmon;
+            padding: 10px;
             text-decoration: none;
             border-radius: 5px;
+            font-size: 14px;
         }
         .admin-panel-link:hover {
             background-color: #e9967a;
@@ -128,16 +148,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div class="form-container">
-        <a href="admin_dashboard.php" class="admin-panel-link">Admin Panel</a>
         <h2>Admin Login</h2>
         <?php if (isset($error_message)): ?>
-            <div class="error-message"><?= $error_message ?></div>
+            <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
         <?php endif; ?>
         <form action="admin_login.php" method="POST">
             <input type="text" name="admin_username" placeholder="Admin Username" required>
             <input type="password" name="admin_password" placeholder="Admin Password" required>
             <button type="submit">Login</button>
         </form>
+        <a href="admin_dashboard.php" class="admin-panel-link">Admin Panel</a>
     </div>
 </body>
 </html>
