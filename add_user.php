@@ -13,19 +13,20 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash the password
+// Fetch users from the database
+$sql = "SELECT id, username, email FROM users";
+$result = $conn->query($sql);
 
-    // Insert new user into the database
-    $sql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$password')";
-    if ($conn->query($sql) {
-        echo "<script>alert('User added successfully!');</script>";
+// Handle user deletion
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];
+    $delete_sql = "DELETE FROM users WHERE id = $delete_id";
+    if ($conn->query($delete_sql) === TRUE) {
+        echo "<script>alert('User deleted successfully!');</script>";
+        // Refresh the page to reflect changes
         echo "<script>window.location.href = 'admin_dashboard.php';</script>";
     } else {
-        echo "<script>alert('Error adding user: " . $conn->error . "');</script>";
+        echo "<script>alert('Error deleting user: " . $conn->error . "');</script>";
     }
 }
 ?>
@@ -36,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add User</title>
+    <title>Admin Dashboard</title>
     <style>
         body {
             font-family: sans-serif;
@@ -91,40 +92,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             height: auto;
             display: block;
         }
-        .form-container {
+        .dashboard-container {
             background-color: white;
             padding: 20px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             width: 80%;
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 800px;
+            margin-bottom: 20px;
         }
-        .form-container h2 {
+        .dashboard-container h2 {
             text-align: center;
         }
-        .form-container label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-container input[type="text"],
-        .form-container input[type="email"],
-        .form-container input[type="password"] {
+        .dashboard-container table {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        .form-container button {
-            padding: 10px 20px;
+        .dashboard-container th, .dashboard-container td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        .dashboard-container th {
+            background-color: #f2f2f2;
+        }
+        .dashboard-container button {
+            padding: 5px 10px;
             border: none;
             border-radius: 5px;
             background-color: red;
             color: white;
             cursor: pointer;
         }
-        .form-container button:hover {
+        .dashboard-container button:hover {
             background-color: darkred;
         }
     </style>
@@ -148,20 +148,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
         </div>
 
-        <div class="form-container">
-            <h2>Add New User</h2>
-            <form method="POST" action="">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-
-                <button type="submit">Add User</button>
-            </form>
+        <div class="dashboard-container">
+            <h2>Admin Dashboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>{$row['id']}</td>
+                                    <td>{$row['username']}</td>
+                                    <td>{$row['email']}</td>
+                                    <td>
+                                        <a href='edit_user.php?id={$row['id']}'><button>Edit</button></a>
+                                        <a href='admin_dashboard.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this user?');\"><button>Delete</button></a>
+                                    </td>
+                                  </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4'>No users found.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
