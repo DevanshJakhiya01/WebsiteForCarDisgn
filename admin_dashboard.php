@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 3px solid white;
+            border: 3px solid red;
             margin-bottom: 10px;
         }
         .admin-profile p {
