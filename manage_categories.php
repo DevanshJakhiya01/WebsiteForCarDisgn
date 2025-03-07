@@ -21,7 +21,7 @@ $result = $conn->query($sql);
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
     $delete_sql = "DELETE FROM categories WHERE id = $delete_id";
-    if ($conn->query($delete_sql) {
+    if ($conn->query($delete_sql)) {
         echo "<script>alert('Category deleted successfully!');</script>";
         echo "<script>window.location.href = 'manage_categories.php';</script>";
     } else {
