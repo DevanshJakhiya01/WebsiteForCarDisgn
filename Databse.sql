@@ -29,13 +29,16 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Table for order payments
 CREATE TABLE order_payments (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     payment_amount DECIMAL(10, 2) NOT NULL,
-    payment_method ENUM('credit_card', 'paypal', 'cash_on_delivery') NOT NULL,
+    payment_method ENUM('credit_card', 'debit_card', 'paypal', 'upi', 'cash_on_delivery') NOT NULL,
+    card_number VARCHAR(16),
+    expiry_date VARCHAR(5),
+    cvv VARCHAR(3),
+    upi_id VARCHAR(50),
     payment_status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
