@@ -190,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
     <div class="main-content">
         <div class="logo">
-            <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+            <img src="C:/Users/devan/Downloads/project/WebsiteForCarDisgn/Images/Devansh%203dxx.jpg" alt="Devansh Car Customization Logo">
         </div>
 
         <div class="table-container">
