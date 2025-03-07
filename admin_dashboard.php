@@ -41,13 +41,47 @@ if (isset($_GET['delete_id'])) {
     <style>
         body {
             font-family: sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            display: flex;
             background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
             background-size: auto;
             color: red;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .sidebar ul li a:hover {
+            background-color: #555;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
         }
         .logo {
             width: 300px;
@@ -97,41 +131,55 @@ if (isset($_GET['delete_id'])) {
 </head>
 
 <body>
-    <div class="logo">
-        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="admin_dashboard.php">Users</a></li>
+            <li><a href="add_user.php">Add User</a></li>
+            <li><a href="manage_categories.php">Categories</a></li>
+            <li><a href="manage_products.php">Products</a></li>
+            <li><a href="manage_orders.php">Orders</a></li>
+            <li><a href="manage_payments.php">Payments</a></li>
+        </ul>
     </div>
 
-    <div class="dashboard-container">
-        <h2>Admin Dashboard</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>{$row['id']}</td>
-                                <td>{$row['username']}</td>
-                                <td>{$row['email']}</td>
-                                <td>
-                                    <a href='edit_user.php?id={$row['id']}'><button>Edit</button></a>
-                                    <a href='admin_dashboard.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this user?');\"><button>Delete</button></a>
-                                </td>
-                              </tr>";
+    <div class="main-content">
+        <div class="logo">
+            <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+        </div>
+
+        <div class="dashboard-container">
+            <h2>Admin Dashboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>{$row['id']}</td>
+                                    <td>{$row['username']}</td>
+                                    <td>{$row['email']}</td>
+                                    <td>
+                                        <a href='edit_user.php?id={$row['id']}'><button>Edit</button></a>
+                                        <a href='admin_dashboard.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this user?');\"><button>Delete</button></a>
+                                    </td>
+                                  </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4'>No users found.</td></tr>";
                     }
-                } else {
-                    echo "<tr><td colspan='4'>No users found.</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
+                    ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
