@@ -77,6 +77,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
+        .admin-profile {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin-bottom: 10px;
+        }
+        .admin-profile p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
@@ -186,6 +202,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <div class="sidebar">
+        <div class="admin-profile">
+            <img src="Images/admin.jpg" alt="Admin Photo">
+            <p>Admin</p>
+        </div>
         <h2>Admin Panel</h2>
         <ul>
             <li><a href="admin_dashboard.php">Users</a></li>
