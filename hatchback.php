@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Hatchbacks</title>
     <style>
-       body {
+        body {
             font-family: sans-serif;
             margin: 20px;
             background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
@@ -57,6 +58,7 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         button {
             padding: 10px;
             border: none;
@@ -92,82 +94,130 @@
     <p>This is the hatchback page.</p>
 
     <?php
+    // Database connection
     $servername = "localhost";
     $username = "root";
     $password = "";
     $dbname = "car_customization";
-    
+
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
-    
+
+    // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $hatchbacks = [
-        ["name" => "Suzuki Swift", "image" => "Images/Suzuki_Swift_04.jpg", "description" => "A popular and fuel-efficient hatchback.",
-        "custom_images" => [
-            "stock" => "Images/Suzuki_Swift_04.jpg",
-            "alloy" => "Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg",
-            "steel" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg",
-            "aftermarket" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg",
-            "candyred" => "Images/Firefly%20Maruti%20Suzuki%20Swift%20Cany%20Red%20color%2065968.jpg",
-            "perlblue" => "Images/Firefly%20Suzuki%20Swift%20Car%20Perl%20Blue%20Color%2067714.jpg",
-            "detonagreen" => "Images/Firefly%20Suzuki%20Swift%20Car%20Detona%20green%20Color%2062240.jpg",
-            "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20Car%20Black%20Sparide%20Matte%20Color%2067714.jpg",
-        ]],
-        ["name" => "Honda Civic", "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg", "description" => "Known for its reliability and sporty handling.",
-        "custom_images" => [
-            "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
-            "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
-            "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
-            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg",
-            "candyred" => "Images/Firefly%20Honda%20civic%20car%20in%20Candy%20red%20color%2023588.jpg",
-            "perlblue" => "Images/Firefly%20Honda%20Civic%20car%20in%20Perl%20Blue%20color%2023588.jpg",
-            "detonagreen" => "Images/Firefly%20Honda%20Civic%20car%20in%20Detona%20Green%20color%2023588.jpg",
-            "blacksparidematte" => "Images/Firefly%20Honda%20Civic%20car%20in%20Black%20Sparide%20Matte%20color%2015388.jpg",
-        ]],
-        ["name" => "Volkswagen Golf", "image" => "Images/volkswagen-golf-2020-specs-01.jpg", "description" => "A classic hatchback with a premium feel.",
-        "custom_images" => [
-            "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
-            "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
-            "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
-            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg",
-            "candyred" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Candy%20Red%20color%2084012.jpg",
-            "perlblue" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Perl%20Blue%20color%2010246.jpg",
-            "detonagreen" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Detona%20Green%20color%2010246.jpg",
-            "blacksparidematte" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Black%20Sparide%20Matte%20color%2084012.jpg",
-        ]],
-    ];
+    // Handle form submission
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Fetch a valid user_id from the users table
+        $sql = "SELECT id FROM users LIMIT 1";
+        $result = $conn->query($sql);
 
-    foreach ($hatchbacks as $index => $hatchback): ?>
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $user_id = $row['id']; // Use the first user's ID
+
+            $car_name = $_POST['car_name'];
+            $wheels = $_POST['wheels'];
+            $paint = $_POST['paint'];
+            $total_amount = 16000.00; // Example total amount
+
+            // Insert into orders table
+            $sql = "INSERT INTO orders (user_id, total_amount, status) VALUES ('$user_id', '$total_amount', 'pending')";
+            if ($conn->query($sql)) {
+                $order_id = $conn->insert_id; // Get the last inserted order ID
+                echo "<script>alert('Order submitted successfully! Order ID: $order_id');</script>";
+            } else {
+                echo "<script>alert('Error submitting order: " . $conn->error . "');</script>";
+            }
+        } else {
+            echo "<script>alert('No users found in the database. Please add a user first.');</script>";
+        }
+    }
+
+    // Hatchback data
+    $hatchbacks = [
+        [
+            "name" => "Suzuki Swift",
+            "image" => "Images/Suzuki_Swift_04.jpg",
+            "description" => "A popular and fuel-efficient hatchback.",
+            "custom_images" => [
+                "stock" => "Images/Suzuki_Swift_04.jpg",
+                "alloy" => "Images/Firefly%20imagine%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Alloy%20Wheels%2048339.jpg",
+                "steel" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%C2%A0Steel%20Wheels%2059797.jpg",
+                "aftermarket" => "Images/Firefly%20red%20color%20Maruti%20Suzuki%20Swift%202024%20with%20Aftermarket%20Wheels%2086150.jpg",
+                "candyred" => "Images/Firefly%20Maruti%20Suzuki%20Swift%20Cany%20Red%20color%2065968.jpg",
+                "perlblue" => "Images/Firefly%20Suzuki%20Swift%20Car%20Perl%20Blue%20Color%2067714.jpg",
+                "detonagreen" => "Images/Firefly%20Suzuki%20Swift%20Car%20Detona%20green%20Color%2062240.jpg",
+                "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20Car%20Black%20Sparide%20Matte%20Color%2067714.jpg",
+            ]
+        ],
+        [
+            "name" => "Honda Civic",
+            "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
+            "description" => "Known for its reliability and sporty handling.",
+            "custom_images" => [
+                "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
+                "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
+                "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
+                "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg",
+                "candyred" => "Images/Firefly%20Honda%20civic%20car%20in%20Candy%20red%20color%2023588.jpg",
+                "perlblue" => "Images/Firefly%20Honda%20Civic%20car%20in%20Perl%20Blue%20color%2023588.jpg",
+                "detonagreen" => "Images/Firefly%20Honda%20Civic%20car%20in%20Detona%20Green%20color%2023588.jpg",
+                "blacksparidematte" => "Images/Firefly%20Honda%20Civic%20car%20in%20Black%20Sparide%20Matte%20color%2015388.jpg",
+            ]
+        ],
+        [
+            "name" => "Volkswagen Golf",
+            "image" => "Images/volkswagen-golf-2020-specs-01.jpg",
+            "description" => "A classic hatchback with a premium feel.",
+            "custom_images" => [
+                "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
+                "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
+                "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
+                "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg",
+                "candyred" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Candy%20Red%20color%2084012.jpg",
+                "perlblue" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Perl%20Blue%20color%2010246.jpg",
+                "detonagreen" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Detona%20Green%20color%2010246.jpg",
+                "blacksparidematte" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Black%20Sparide%20Matte%20color%2084012.jpg",
+            ]
+        ],
+    ];
+    ?>
+
+    <?php foreach ($hatchbacks as $index => $hatchback): ?>
         <div class="polaroid">
             <img src="<?= htmlspecialchars($hatchback['image']) ?>" alt="<?= htmlspecialchars($hatchback['name']) ?>" id="hatchback-image-<?= $index ?>">
             <div class="container">
                 <p><?= htmlspecialchars($hatchback['name']) ?></p>
                 <p><?= htmlspecialchars($hatchback['description']) ?></p>
-                <div class="select-container">
-                    <select onchange="changeImage(<?= $index ?>, this.value, 'wheels')">
-                        <option value="stock">Stock Wheels</option>
-                        <option value="alloy">Alloy Wheels</option>
-                        <option value="steel">Steel Wheels</option>
-                        <option value="aftermarket">Aftermarket Wheels</option>
-                    </select>
-                    <select onchange="changeImage(<?= $index ?>, this.value, 'paint')">
-                        <option value="default">Default</option>
-                        <option value="candyred">Candy Red</option>
-                        <option value="perlblue">Perl Blue</option>
-                        <option value="detonagreen">Detona Green</option>
-                        <option value="blacksparidematte">Black Sparide Matte</option>
-                    </select>
-                    <button onclick="submitCustomization(<?= $index ?>)">Submit</button>
-                </div>
+                <form method="POST" action="" onsubmit="return submitCustomization(<?= $index ?>)">
+                    <div class="select-container">
+                        <select name="wheels" onchange="changeImage(<?= $index ?>, this.value, 'wheels')">
+                            <option value="stock">Stock Wheels</option>
+                            <option value="alloy">Alloy Wheels</option>
+                            <option value="steel">Steel Wheels</option>
+                            <option value="aftermarket">Aftermarket Wheels</option>
+                        </select>
+                        <select name="paint" onchange="changeImage(<?= $index ?>, this.value, 'paint')">
+                            <option value="default">Default</option>
+                            <option value="candyred">Candy Red</option>
+                            <option value="perlblue">Perl Blue</option>
+                            <option value="detonagreen">Detona Green</option>
+                            <option value="blacksparidematte">Black Sparide Matte</option>
+                        </select>
+                        <input type="hidden" name="car_name" value="<?= htmlspecialchars($hatchback['name']) ?>">
+                        <button type="submit">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     <?php endforeach; ?>
 
     <script>
         const hatchbackImages = <?= json_encode(array_column($hatchbacks, 'custom_images')) ?>;
+
         function changeImage(index, value, type) {
             let imageValue;
             if (type === "wheels") {
@@ -175,8 +225,9 @@
             } else if (type === "paint") {
                 imageValue = value !== 'default' ? value : 'stock';
             } else {
-                imageValue = "stock"; 
+                imageValue = "stock";
             }
+
             const imageElement = document.getElementById(`hatchback-image-${index}`);
             if (hatchbackImages[index] && hatchbackImages[index][imageValue]) {
                 imageElement.src = hatchbackImages[index][imageValue];
@@ -186,27 +237,11 @@
         }
 
         function submitCustomization(index) {
-            const selectedWheels = document.querySelector(`select[onchange='changeImage(${index}, this.value, "wheels")']`).value;
-            const selectedPaint = document.querySelector(`select[onchange='changeImage(${index}, this.value, "paint")']`).value;
-            const hatchbackName = <?= json_encode(array_column($hatchbacks, 'name')) ?>[index];
-            
-
-            fetch('submit_customization.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name: hatchbackName, wheels: selectedWheels, paint: selectedPaint })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Your car customization request has been submitted!');
-                } else {
-                    alert('Failed to submit customization request.');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+            const form = document.querySelector(`#hatchback-image-${index}`).parentElement.querySelector('form');
+            const wheels = form.querySelector('select[name="wheels"]').value;
+            const paint = form.querySelector('select[name="paint"]').value;
+            alert(`Customization submitted for Hatchback ${index + 1}: Wheels - ${wheels}, Paint - ${paint}`);
+            return true; // Allow form submission
         }
     </script>
 </body>
