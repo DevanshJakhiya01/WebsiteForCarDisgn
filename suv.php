@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>SUVs</title>
@@ -57,6 +58,7 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         button {
             padding: 10px;
             border: none;
@@ -84,7 +86,7 @@
         }
     </style>
 </head>
-<body><br><br>
+<body>
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
@@ -92,6 +94,7 @@
     <p>This is the SUV page.</p>
 
     <?php
+    // Database connection
     $servername = "localhost";
     $username = "root";
     $password = "";
@@ -100,9 +103,40 @@
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
 
+    // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
+
+    // Handle form submission
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Fetch a valid user_id from the users table
+        $sql = "SELECT id FROM users LIMIT 1";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $user_id = $row['id']; // Use the first user's ID
+
+            $car_name = $_POST['car_name'];
+            $wheels = $_POST['wheels'];
+            $paint = $_POST['paint'];
+            $total_amount = 16000.00; // Example total amount
+
+            // Insert into orders table
+            $sql = "INSERT INTO orders (user_id, total_amount, status) VALUES ('$user_id', '$total_amount', 'pending')";
+            if ($conn->query($sql)) {
+                $order_id = $conn->insert_id; // Get the last inserted order ID
+                echo "<script>alert('Order submitted successfully! Order ID: $order_id');</script>";
+            } else {
+                echo "<script>alert('Error submitting order: " . $conn->error . "');</script>";
+            }
+        } else {
+            echo "<script>alert('No users found in the database. Please add a user first.');</script>";
+        }
+    }
+
+    // SUV data
     $suvs = [
         [
             "name" => "Land Rover Defender",
@@ -150,29 +184,33 @@
             ]
         ],
     ];
+    ?>
 
-    foreach ($suvs as $index => $suv): ?>
+    <?php foreach ($suvs as $index => $suv): ?>
         <div class="polaroid">
             <img src="<?= htmlspecialchars($suv['image']) ?>" alt="<?= htmlspecialchars($suv['name']) ?>" id="suv-image-<?= $index ?>">
             <div class="container">
                 <p><?= htmlspecialchars($suv['name']) ?></p>
                 <p><?= htmlspecialchars($suv['description']) ?></p>
-                <div class="select-container">
-                    <select onchange="changeImage(<?= $index ?>, this.value, 'wheels')">
-                        <option value="stock">Stock Wheels</option>
-                        <option value="black">Black Rims</option>
-                        <option value="chrome">Chrome Rims</option>
-                        <option value="offroad">Off-Road Tires</option>
-                    </select>
-                    <select onchange="changeImage(<?= $index ?>, this.value, 'paint')">
-                        <option value="default">Default</option>
-                        <option value="candyred">Candy Red</option>
-                        <option value="perlblue">Perl Blue</option>
-                        <option value="detonagreen">Detona Green</option>
-                        <option value="blacksparidematte">Black Sparide Matte</option>
-                    </select>
-                    <button onclick="submitCustomization(<?= $index ?>)">Submit</button>
-                </div>
+                <form method="POST" action="" onsubmit="return submitCustomization(<?= $index ?>)">
+                    <div class="select-container">
+                        <select name="wheels" onchange="changeImage(<?= $index ?>, this.value, 'wheels')">
+                            <option value="stock">Stock Wheels</option>
+                            <option value="black">Black Rims</option>
+                            <option value="chrome">Chrome Rims</option>
+                            <option value="offroad">Off-Road Tires</option>
+                        </select>
+                        <select name="paint" onchange="changeImage(<?= $index ?>, this.value, 'paint')">
+                            <option value="default">Default</option>
+                            <option value="candyred">Candy Red</option>
+                            <option value="perlblue">Perl Blue</option>
+                            <option value="detonagreen">Detona Green</option>
+                            <option value="blacksparidematte">Black Sparide Matte</option>
+                        </select>
+                        <input type="hidden" name="car_name" value="<?= htmlspecialchars($suv['name']) ?>">
+                        <button type="submit">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     <?php endforeach; ?>
@@ -181,29 +219,29 @@
         const suvImages = <?= json_encode(array_column($suvs, 'custom_images')) ?>;
 
         function changeImage(index, value, type) {
-            const imageElement = document.getElementById(`suv-image-${index}`);
-            const currentImage = suvImages[index];
-
-            let imageKey;
+            let imageValue;
             if (type === "wheels") {
-                imageKey = value;
+                imageValue = value;
             } else if (type === "paint") {
-                imageKey = value !== 'default' ? value : 'stock';
+                imageValue = value !== 'default' ? value : 'stock';
             } else {
-                imageKey = "stock";
+                imageValue = "stock";
             }
 
-            if (currentImage && currentImage[imageKey]) {
-                imageElement.src = currentImage[imageKey];
+            const imageElement = document.getElementById(`suv-image-${index}`);
+            if (suvImages[index] && suvImages[index][imageValue]) {
+                imageElement.src = suvImages[index][imageValue];
             } else {
                 console.error("Invalid image value:", value, "for SUV", index);
             }
         }
 
         function submitCustomization(index) {
-            const imageElement = document.getElementById(`suv-image-${index}`);
-            const selectedImage = imageElement.src;
-            alert(`Customization submitted for SUV ${index + 1} with image: ${selectedImage}`);
+            const form = document.querySelector(`#suv-image-${index}`).parentElement.querySelector('form');
+            const wheels = form.querySelector('select[name="wheels"]').value;
+            const paint = form.querySelector('select[name="paint"]').value;
+            alert(`Customization submitted for SUV ${index + 1}: Wheels - ${wheels}, Paint - ${paint}`);
+            return true; // Allow form submission
         }
     </script>
 </body>
