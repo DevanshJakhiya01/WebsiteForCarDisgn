@@ -124,7 +124,8 @@
             $total_amount = 16000.00; // Example total amount
 
             // Insert into orders table
-            $sql = "INSERT INTO orders (user_id, total_amount, status) VALUES ('$user_id', '$total_amount', 'pending')";
+            $sql = "INSERT INTO orders (user_id, car_name, wheels, paint, total_amount, status) 
+                    VALUES ('$user_id', '$car_name', '$wheels', '$paint', '$total_amount', 'pending')";
             if ($conn->query($sql)) {
                 $order_id = $conn->insert_id; // Get the last inserted order ID
                 echo "<script>alert('Order submitted successfully! Order ID: $order_id');</script>";
