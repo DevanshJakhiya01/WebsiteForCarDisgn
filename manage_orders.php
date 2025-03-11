@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch orders from the database
-$sql = "SELECT orders.id, users.username, products.name AS product_name, orders.quantity, orders.total_price, orders.status 
+$sql = "SELECT orders.id, users.username, products.name AS product_name, orders.total_amount, orders.status, orders.created_at 
         FROM orders 
         INNER JOIN users ON orders.user_id = users.id 
         INNER JOIN products ON orders.product_id = products.id";
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders</title>
     <style>
-        body {
+         body {
             font-family: sans-serif;
             margin: 0;
             padding: 0;
@@ -157,6 +157,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
 <body>
     <div class="sidebar">
+        <div class="admin-profile">
+            <img src="Images/admin.jpg" alt="Admin Photo">
+            <p>Admin</p>
+        </div>
         <h2>Admin Panel</h2>
         <ul>
             <li><a href="admin_dashboard.php">Users</a></li>
@@ -181,9 +185,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                         <th>ID</th>
                         <th>User</th>
                         <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
+                        <th>Total Amount</th>
                         <th>Status</th>
+                        <th>Created At</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -195,8 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                                     <td>{$row['id']}</td>
                                     <td>{$row['username']}</td>
                                     <td>{$row['product_name']}</td>
-                                    <td>{$row['quantity']}</td>
-                                    <td>{$row['total_price']}</td>
+                                    <td>{$row['total_amount']}</td>
                                     <td>
                                         <form class='status-form' method='POST' action=''>
                                             <input type='hidden' name='order_id' value='{$row['id']}'>
@@ -209,6 +212,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                                             <button type='submit' name='update_status'>Update</button>
                                         </form>
                                     </td>
+                                    <td>{$row['created_at']}</td>
                                     <td>
                                         <a href='manage_orders.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this order?');\"><button>Delete</button></a>
                                     </td>
