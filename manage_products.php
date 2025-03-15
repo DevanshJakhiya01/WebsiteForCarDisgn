@@ -13,8 +13,76 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Handle file upload
+function uploadImage($file) {
+    $target_dir = "Images/";
+    $target_file = $target_dir . basename($file["name"]);
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    // Check if the file is an image
+    $check = getimagesize($file["tmp_name"]);
+    if ($check === false) {
+        return ["success" => false, "message" => "File is not an image."];
+    }
+
+    // Check file size (max 5MB)
+    if ($file["size"] > 5000000) {
+        return ["success" => false, "message" => "File is too large. Maximum size is 5MB."];
+    }
+
+    // Allow only certain file formats
+    if (!in_array($imageFileType, ["jpg", "jpeg", "png", "gif"])) {
+        return ["success" => false, "message" => "Only JPG, JPEG, PNG, and GIF files are allowed."];
+    }
+
+    // Upload the file
+    if (move_uploaded_file($file["tmp_name"], $target_file)) {
+        return ["success" => true, "file_path" => $target_file];
+    } else {
+        return ["success" => false, "message" => "Error uploading file."];
+    }
+}
+
+// Handle form submission for adding a new product
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $product_name = $_POST['product_name'];
+    $product_price = $_POST['product_price'];
+    $category_id = $_POST['category_id'];
+    $product_color = $_POST['product_color']; // New field for color
+
+    // Handle image upload
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == 0) {
+        $upload_result = uploadImage($_FILES['product_image']);
+        if ($upload_result['success']) {
+            $product_image = $upload_result['file_path'];
+        } else {
+            echo "<script>alert('Error: " . $upload_result['message'] . "');</script>";
+            $product_image = null;
+        }
+    } else {
+        $product_image = null;
+    }
+
+    // Insert new product into the database
+    if ($product_image) {
+        $stmt = $conn->prepare("INSERT INTO products (name, price, category_id, image, color) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sdisss", $product_name, $product_price, $category_id, $product_image, $product_color);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO products (name, price, category_id, color) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sdis", $product_name, $product_price, $category_id, $product_color);
+    }
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Product added successfully!');</script>";
+        echo "<script>window.location.href = 'manage_products.php';</script>";
+    } else {
+        echo "<script>alert('Error adding product: " . $stmt->error . "');</script>";
+    }
+    $stmt->close();
+}
+
 // Fetch products from the database
-$sql = "SELECT products.id, products.name, products.price, categories.name AS category_name 
+$sql = "SELECT products.id, products.name, products.price, products.image, products.color, categories.name AS category_name 
         FROM products 
         INNER JOIN categories ON products.category_id = categories.id";
 $result = $conn->query($sql);
@@ -34,33 +102,16 @@ if (isset($_GET['delete_id'])) {
         echo "<script>alert('Error deleting product: " . $conn->error . "');</script>";
     }
 }
-
-// Handle form submission for adding a new product
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $product_name = $_POST['product_name'];
-    $product_price = $_POST['product_price'];
-    $category_id = $_POST['category_id'];
-
-    // Insert new product into the database
-    $insert_sql = "INSERT INTO products (name, price, category_id) VALUES ('$product_name', '$product_price', '$category_id')";
-    if ($conn->query($insert_sql)) {
-        echo "<script>alert('Product added successfully!');</script>";
-        echo "<script>window.location.href = 'manage_products.php';</script>";
-    } else {
-        echo "<script>alert('Error adding product: " . $conn->error . "');</script>";
-    }
-}
 ?>
 
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Products</title>
     <style>
-        body {
+         body {
             font-family: sans-serif;
             margin: 0;
             padding: 0;
@@ -147,7 +198,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         .form-container input[type="text"],
         .form-container input[type="number"],
-        .form-container select {
+        .form-container select,
+        .form-container input[type="file"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -186,6 +238,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .table-container th {
             background-color: #f2f2f2;
         }
+        .table-container img {
+            width: 100px;
+            height: auto;
+            display: block;
+        }
         .table-container button {
             padding: 5px 10px;
             border: none;
@@ -199,7 +256,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
-
 <body>
     <div class="sidebar">
         <div class="admin-profile">
@@ -224,7 +280,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="form-container">
             <h2>Add New Product</h2>
-            <form method="POST" action="">
+            <form method="POST" action="" enctype="multipart/form-data">
                 <label for="product_name">Product Name:</label>
                 <input type="text" id="product_name" name="product_name" required>
 
@@ -244,6 +300,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     ?>
                 </select>
 
+                <label for="product_color">Product Color:</label>
+                <input type="text" id="product_color" name="product_color" required>
+
+                <label for="product_image">Product Image:</label>
+                <input type="file" id="product_image" name="product_image" accept="image/*">
+
                 <button type="submit">Add Product</button>
             </form>
         </div>
@@ -257,6 +319,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <th>Product Name</th>
                         <th>Price</th>
                         <th>Category</th>
+                        <th>Color</th>
+                        <th>Image</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -269,13 +333,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <td>{$row['name']}</td>
                                     <td>{$row['price']}</td>
                                     <td>{$row['category_name']}</td>
+                                    <td>{$row['color']}</td>
+                                    <td><img src='{$row['image']}' alt='{$row['name']}'></td>
                                     <td>
                                         <a href='manage_products.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this product?');\"><button>Delete</button></a>
                                     </td>
                                   </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='5'>No products found.</td></tr>";
+                        echo "<tr><td colspan='7'>No products found.</td></tr>";
                     }
                     ?>
                 </tbody>
