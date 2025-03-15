@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error_message = "Please enter your UPI ID.";
         } else {
             // Insert payment details into the database
-            $sql = "INSERT INTO order_payments (order_id, payment_amount, payment_method, card_number, expiry_date, cvv, upi_id, payment_status) 
+            $sql = "INSERT INTO payment (order_id, payment_amount, payment_method, card_number, expiry_date, cvv, upi_id, payment_status) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("idsssss", $order_id, $payment_amount, $payment_method, $card_number, $expiry_date, $cvv, $upi_id);
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         body {
             font-family: sans-serif;
             margin: 20px;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: cover;
             color: red;
             display: flex;
