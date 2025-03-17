@@ -14,10 +14,9 @@ if ($conn->connect_error) {
 }
 
 // Fetch orders from the database
-$sql = "SELECT orders.id, users.username, products.name AS product_name, orders.total_amount, orders.status, orders.created_at 
+$sql = "SELECT orders.id, users.username, orders.car_name AS product_name, orders.total_amount, orders.status, orders.created_at 
         FROM orders 
-        INNER JOIN users ON orders.user_id = users.id 
-        INNER JOIN products ON orders.product_id = products.id";
+        INNER JOIN users ON orders.user_id = users.id";
 $result = $conn->query($sql);
 
 // Handle order deletion
@@ -56,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders</title>
     <style>
-         body {
+        body {
             font-family: sans-serif;
             margin: 0;
             padding: 0;

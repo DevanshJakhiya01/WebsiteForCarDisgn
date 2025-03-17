@@ -1,4 +1,6 @@
 <?php
+session_start(); // Start the session to manage cart data
+
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -23,29 +25,26 @@ function handleFormSubmission($conn) {
             $paint = $_POST['paint'];
             $product_id = $_POST['product_id'];
 
-            // Fetch a valid user_id from the users table
-            $sql = "SELECT id FROM users LIMIT 1";
-            $result = $conn->query($sql);
+            // Add product to cart (stored in session)
+            $cart_item = [
+                "product_id" => $product_id,
+                "car_name" => $car_name,
+                "wheels" => $wheels,
+                "paint" => $paint,
+                "price" => 16000.00 // Example price
+            ];
 
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                $user_id = $row['id']; // Use the first user's ID
-                $total_amount = 16000.00; // Example total amount
-
-                // Insert into orders table using prepared statements
-                $stmt = $conn->prepare("INSERT INTO orders (user_id, product_id, total_amount, status) VALUES (?, ?, ?, 'pending')");
-                $stmt->bind_param("iid", $user_id, $product_id, $total_amount);
-
-                if ($stmt->execute()) {
-                    $order_id = $stmt->insert_id; // Get the last inserted order ID
-                    echo "<script>alert('Order submitted successfully! Order ID: $order_id');</script>";
-                } else {
-                    echo "<script>alert('Error submitting order: " . $stmt->error . "');</script>";
-                }
-                $stmt->close();
-            } else {
-                echo "<script>alert('No users found in the database. Please add a user first.');</script>";
+            // Initialize cart if it doesn't exist
+            if (!isset($_SESSION['cart'])) {
+                $_SESSION['cart'] = [];
             }
+
+            // Add item to cart
+            $_SESSION['cart'][] = $cart_item;
+
+            // Redirect to cart page
+            header("Location: cart.php");
+            exit();
         } else {
             echo "<script>alert('All form fields are required.');</script>";
         }
@@ -73,36 +72,7 @@ $hatchbacks = [
             "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20Car%20Black%20Sparide%20Matte%20Color%2067714.jpg",
         ]
     ],
-    [
-        "name" => "Honda Civic",
-        "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
-        "description" => "Known for its reliability and sporty handling.",
-        "custom_images" => [
-            "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
-            "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
-            "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
-            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg",
-            "candyred" => "Images/Firefly%20Honda%20civic%20car%20in%20Candy%20red%20color%2023588.jpg",
-            "perlblue" => "Images/Firefly%20Honda%20Civic%20car%20in%20Perl%20Blue%20color%2023588.jpg",
-            "detonagreen" => "Images/Firefly%20Honda%20Civic%20car%20in%20Detona%20Green%20color%2023588.jpg",
-            "blacksparidematte" => "Images/Firefly%20Honda%20Civic%20car%20in%20Black%20Sparide%20Matte%20color%2015388.jpg",
-        ]
-    ],
-    [
-        "name" => "Volkswagen Golf",
-        "image" => "Images/volkswagen-golf-2020-specs-01.jpg",
-        "description" => "A classic hatchback with a premium feel.",
-        "custom_images" => [
-            "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
-            "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
-            "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
-            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg",
-            "candyred" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Candy%20Red%20color%2084012.jpg",
-            "perlblue" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Perl%20Blue%20color%2010246.jpg",
-            "detonagreen" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Detona%20Green%20color%2010246.jpg",
-            "blacksparidematte" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Black%20Sparide%20Matte%20color%2084012.jpg",
-        ]
-    ],
+    // Add other hatchbacks here...
 ];
 ?>
 
@@ -224,7 +194,7 @@ $hatchbacks = [
                         </select>
                         <input type="hidden" name="car_name" value="<?= htmlspecialchars($hatchback['name']) ?>">
                         <input type="hidden" name="product_id" value="<?= htmlspecialchars($hatchback['id']) ?>">
-                        <button type="submit">Submit</button>
+                        <button type="submit">Add to Cart</button>
                     </div>
                 </form>
             </div>
