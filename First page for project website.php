@@ -24,6 +24,26 @@
             height: auto;
             display: block;
         }
+        .login-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .login-buttons button {
+            padding: 12px 24px;
+            background-color: darksalmon;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .login-buttons button:hover {
+            background-color: #e9967a;
+        }
         .polaroid {
             width: 90%;
             max-width: 600px;
@@ -86,6 +106,13 @@
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
+
+    <!-- Admin and User Login Buttons -->
+    <div class="login-buttons">
+        <button onclick="window.location.href='http://localhost/project/WebsiteForCarDisgn/admin_login.php'">Admin Login</button>
+        <button onclick="window.location.href='http://localhost/project/WebsiteForCarDisgn/login_signup.html'">User Login</button>
+    </div>
+
     <!-- Add to Cart Button for All Containers -->
     <div class="add-to-cart-all" onclick="addToCart('All Cars')">Add All to Cart</div>
 
