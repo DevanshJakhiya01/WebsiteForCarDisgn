@@ -31,7 +31,6 @@
             margin-bottom: 20px;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            position: relative;
         }
         .polaroid img {
             width: 100%;
@@ -57,17 +56,17 @@
         .button:hover {
             background-color: #e9967a;
         }
-        .add-to-cart {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+        .add-to-cart-all {
+            margin-bottom: 20px;
             background-color: red;
             color: white;
-            padding: 8px 16px;
+            padding: 12px 24px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
-        .add-to-cart:hover {
+        .add-to-cart-all:hover {
             background-color: darkred;
         }
         @media (min-width: 768px) {
@@ -87,34 +86,33 @@
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
+    <!-- Add to Cart Button for All Containers -->
+    <div class="add-to-cart-all" onclick="addToCart('All Cars')">Add All to Cart</div>
+
     <?php
     $cars = [
         [
             "image" => "images/tatatiagopxe_373379_daytonagrey_base.jpeg", 
             "alt" => "Tata Tiago",
             "type" => "Hatchback",
-            "link" => "hatchback.php",
-            "id" => 1
+            "link" => "hatchback.php"
         ],
         [
             "image" => "images/dzire-2024-exterior-right-front-three-quarter-3.jpeg", 
             "alt" => "Dzire",
             "type" => "Sedan",
-            "link" => "sedan.php",
-            "id" => 2
+            "link" => "sedan.php"
         ],
         [
             "image" => "images/syrosintensered.jpeg", 
             "alt" => "Kia Syros",
             "type" => "SUV",
-            "link" => "suv.php",
-            "id" => 3
+            "link" => "suv.php"
         ],
     ];
 
     foreach ($cars as $car): ?>
         <div class="polaroid">
-            <div class="add-to-cart" onclick="addToCart(<?php echo $car['id']; ?>)">Add to Cart</div>
             <img src="<?php echo $car['image']; ?>" alt="<?php echo $car['alt']; ?>">
             <div class="container">
                 <a href="<?php echo $car['link']; ?>" class="button"><?php echo $car['type']; ?></a>
@@ -123,21 +121,9 @@
     <?php endforeach; ?>
 
     <script>
-        function addToCart(carId) {
-            fetch('add_to_cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `car_id=${carId}`
-            })
-            .then(response => response.text())
-            .then(data => {
-                alert(data); // Show success message
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        function addToCart(carName) {
+            alert(carName + " have been added to the cart!");
+            // You can add additional logic here to handle the "Add to Cart" functionality
         }
     </script>
 </body>
