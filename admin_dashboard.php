@@ -14,16 +14,16 @@ if ($conn->connect_error) {
 }
 
 // Fetch payments from the database
-$sql = "SELECT payments.id, users.username, orders.id AS order_id, payments.amount, payments.payment_method, payments.status, payments.created_at 
-        FROM payments 
-        INNER JOIN users ON payments.user_id = users.id 
-        INNER JOIN orders ON payments.order_id = orders.id";
+$sql = "SELECT payment.id, users.username, orders.id AS order_id, payment.payment_amount, payment.payment_method, payment.payment_status, payment.created_at 
+        FROM payment 
+        INNER JOIN users ON payment.user_id = users.id 
+        INNER JOIN orders ON payment.order_id = orders.id";
 $result = $conn->query($sql);
 
 // Handle payment deletion
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
-    $delete_sql = "DELETE FROM payments WHERE id = $delete_id";
+    $delete_sql = "DELETE FROM payment WHERE id = $delete_id";
     if ($conn->query($delete_sql)) {
         echo "<script>alert('Payment deleted successfully!');</script>";
         echo "<script>window.location.href = 'manage_payments.php';</script>";
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $new_status = $_POST['status'];
 
     // Update payment status in the database
-    $update_sql = "UPDATE payments SET status = '$new_status' WHERE id = $payment_id";
+    $update_sql = "UPDATE payment SET payment_status = '$new_status' WHERE id = $payment_id";
     if ($conn->query($update_sql)) {
         echo "<script>alert('Payment status updated successfully!');</script>";
         echo "<script>window.location.href = 'manage_payments.php';</script>";
@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             margin: 0;
             padding: 0;
             display: flex;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: auto;
             color: red;
         }
@@ -216,15 +216,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                                     <td>{$row['id']}</td>
                                     <td>{$row['username']}</td>
                                     <td>{$row['order_id']}</td>
-                                    <td>{$row['amount']}</td>
+                                    <td>{$row['payment_amount']}</td>
                                     <td>{$row['payment_method']}</td>
                                     <td>
                                         <form class='status-form' method='POST' action=''>
                                             <input type='hidden' name='payment_id' value='{$row['id']}'>
                                             <select name='status'>
-                                                <option value='Pending'" . ($row['status'] == 'Pending' ? ' selected' : '') . ">Pending</option>
-                                                <option value='Completed'" . ($row['status'] == 'Completed' ? ' selected' : '') . ">Completed</option>
-                                                <option value='Failed'" . ($row['status'] == 'Failed' ? ' selected' : '') . ">Failed</option>
+                                                <option value='Pending'" . ($row['payment_status'] == 'Pending' ? ' selected' : '') . ">Pending</option>
+                                                <option value='Completed'" . ($row['payment_status'] == 'Completed' ? ' selected' : '') . ">Completed</option>
+                                                <option value='Failed'" . ($row['payment_status'] == 'Failed' ? ' selected' : '') . ">Failed</option>
                                             </select>
                                             <button type='submit' name='update_status'>Update</button>
                                         </form>

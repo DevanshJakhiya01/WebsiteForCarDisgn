@@ -14,16 +14,14 @@ if ($conn->connect_error) {
 }
 
 // Fetch payments from the database
-$sql = "SELECT payments.id, users.username, orders.id AS order_id, payments.amount, payments.payment_method, payments.status, payments.created_at 
-        FROM payments 
-        INNER JOIN users ON payments.user_id = users.id 
-        INNER JOIN orders ON payments.order_id = orders.id";
+$sql = "SELECT payment.id, payment.order_id, payment.payment_amount, payment.payment_method, payment.payment_status, payment.created_at 
+        FROM payment";
 $result = $conn->query($sql);
 
 // Handle payment deletion
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
-    $delete_sql = "DELETE FROM payments WHERE id = $delete_id";
+    $delete_sql = "DELETE FROM payment WHERE id = $delete_id";
     if ($conn->query($delete_sql)) {
         echo "<script>alert('Payment deleted successfully!');</script>";
         echo "<script>window.location.href = 'manage_payments.php';</script>";
@@ -38,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $new_status = $_POST['status'];
 
     // Update payment status in the database
-    $update_sql = "UPDATE payments SET status = '$new_status' WHERE id = $payment_id";
+    $update_sql = "UPDATE payment SET payment_status = '$new_status' WHERE id = $payment_id";
     if ($conn->query($update_sql)) {
         echo "<script>alert('Payment status updated successfully!');</script>";
         echo "<script>window.location.href = 'manage_payments.php';</script>";
@@ -61,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             margin: 0;
             padding: 0;
             display: flex;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: auto;
             color: red;
         }
@@ -76,6 +74,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
+        }
+        .admin-profile {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid red;
+            margin-bottom: 10px;
+        }
+        .admin-profile p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
         }
         .sidebar ul {
             list-style-type: none;
@@ -157,6 +171,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
 <body>
     <div class="sidebar">
+        <div class="admin-profile">
+            <img src="Images/Devansh%203dxx.jpg" alt="Admin Photo">
+            <p>Admin</p>
+        </div>
         <h2>Admin Panel</h2>
         <ul>
             <li><a href="admin_dashboard.php">Users</a></li>
@@ -179,7 +197,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>User</th>
                         <th>Order ID</th>
                         <th>Amount</th>
                         <th>Payment Method</th>
@@ -194,17 +211,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>
                                     <td>{$row['id']}</td>
-                                    <td>{$row['username']}</td>
                                     <td>{$row['order_id']}</td>
-                                    <td>{$row['amount']}</td>
+                                    <td>{$row['payment_amount']}</td>
                                     <td>{$row['payment_method']}</td>
                                     <td>
                                         <form class='status-form' method='POST' action=''>
                                             <input type='hidden' name='payment_id' value='{$row['id']}'>
                                             <select name='status'>
-                                                <option value='Pending'" . ($row['status'] == 'Pending' ? ' selected' : '') . ">Pending</option>
-                                                <option value='Completed'" . ($row['status'] == 'Completed' ? ' selected' : '') . ">Completed</option>
-                                                <option value='Failed'" . ($row['status'] == 'Failed' ? ' selected' : '') . ">Failed</option>
+                                                <option value='Pending'" . ($row['payment_status'] == 'Pending' ? ' selected' : '') . ">Pending</option>
+                                                <option value='Completed'" . ($row['payment_status'] == 'Completed' ? ' selected' : '') . ">Completed</option>
+                                                <option value='Failed'" . ($row['payment_status'] == 'Failed' ? ' selected' : '') . ">Failed</option>
                                             </select>
                                             <button type='submit' name='update_status'>Update</button>
                                         </form>
@@ -216,7 +232,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                                   </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='8'>No payments found.</td></tr>";
+                        echo "<tr><td colspan='7'>No payments found.</td></tr>";
                     }
                     ?>
                 </tbody>

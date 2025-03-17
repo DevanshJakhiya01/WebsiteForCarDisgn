@@ -8,7 +8,7 @@
         body {
             font-family: sans-serif;
             margin: 20px;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: auto;
             color: red;
             display: flex;
@@ -31,6 +31,7 @@
             margin-bottom: 20px;
             text-align: center;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            position: relative;
         }
         .polaroid img {
             width: 100%;
@@ -56,6 +57,19 @@
         .button:hover {
             background-color: #e9967a;
         }
+        .add-to-cart {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-to-cart:hover {
+            background-color: darkred;
+        }
         @media (min-width: 768px) {
             body {
                 margin: 50px;
@@ -79,24 +93,28 @@
             "image" => "images/tatatiagopxe_373379_daytonagrey_base.jpeg", 
             "alt" => "Tata Tiago",
             "type" => "Hatchback",
-            "link" => "hatchback.php"
+            "link" => "hatchback.php",
+            "id" => 1
         ],
         [
             "image" => "images/dzire-2024-exterior-right-front-three-quarter-3.jpeg", 
             "alt" => "Dzire",
             "type" => "Sedan",
-            "link" => "sedan.php"
+            "link" => "sedan.php",
+            "id" => 2
         ],
         [
             "image" => "images/syrosintensered.jpeg", 
             "alt" => "Kia Syros",
             "type" => "SUV",
-            "link" => "suv.php"
+            "link" => "suv.php",
+            "id" => 3
         ],
     ];
 
     foreach ($cars as $car): ?>
         <div class="polaroid">
+            <div class="add-to-cart" onclick="addToCart(<?php echo $car['id']; ?>)">Add to Cart</div>
             <img src="<?php echo $car['image']; ?>" alt="<?php echo $car['alt']; ?>">
             <div class="container">
                 <a href="<?php echo $car['link']; ?>" class="button"><?php echo $car['type']; ?></a>
@@ -104,5 +122,23 @@
         </div>
     <?php endforeach; ?>
 
+    <script>
+        function addToCart(carId) {
+            fetch('add_to_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `car_id=${carId}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data); // Show success message
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>
