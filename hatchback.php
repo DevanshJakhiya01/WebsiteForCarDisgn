@@ -57,7 +57,6 @@ handleFormSubmission($conn);
 // Hatchback data
 $hatchbacks = [
     [
-        "id" => 1, // Example product_id (must exist in the products table)
         "name" => "Suzuki Swift",
         "image" => "Images/Suzuki_Swift_04.jpg",
         "description" => "A popular and fuel-efficient hatchback.",
@@ -72,7 +71,36 @@ $hatchbacks = [
             "blacksparidematte" => "Images/Firefly%20Suzuki%20Swift%20Car%20Black%20Sparide%20Matte%20Color%2067714.jpg",
         ]
     ],
-    // Add other hatchbacks here...
+    [
+        "name" => "Honda Civic",
+        "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
+        "description" => "Known for its reliability and sporty handling.",
+        "custom_images" => [
+            "stock" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
+            "alloy" => "Images/Firefly%20honda%20civic%20red%20color%20with%20Alloy%20whells%2085734.jpg",
+            "steel" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Steel%20wheels%2085734.jpg",
+            "aftermarket" => "Images/Firefly%20Honda%20civic%20red%20color%20with%20Aftermarket%20wheels%2085734.jpg",
+            "candyred" => "Images/Firefly%20Honda%20civic%20car%20in%20Candy%20red%20color%2023588.jpg",
+            "perlblue" => "Images/Firefly%20Honda%20Civic%20car%20in%20Perl%20Blue%20color%2023588.jpg",
+            "detonagreen" => "Images/Firefly%20Honda%20Civic%20car%20in%20Detona%20Green%20color%2023588.jpg",
+            "blacksparidematte" => "Images/Firefly%20Honda%20Civic%20car%20in%20Black%20Sparide%20Matte%20color%2015388.jpg",
+        ]
+    ],
+    [
+        "name" => "Volkswagen Golf",
+        "image" => "Images/volkswagen-golf-2020-specs-01.jpg",
+        "description" => "A classic hatchback with a premium feel.",
+        "custom_images" => [
+            "stock" => "Images/volkswagen-golf-2020-specs-01.jpg",
+            "alloy" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Alloy%20wheel%2069604.jpg",
+            "steel" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Steel%20wheel%2069604.jpg",
+            "aftermarket" => "Images/Firefly%20Volkswagen%20Golf%20Green%20color%20with%20Aftermarket%20wheel%2069604.jpg",
+            "candyred" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Candy%20Red%20color%2084012.jpg",
+            "perlblue" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Perl%20Blue%20color%2010246.jpg",
+            "detonagreen" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Detona%20Green%20color%2010246.jpg",
+            "blacksparidematte" => "Images/Firefly%20Volkswagen%20golf%20car%20in%20Black%20Sparide%20Matte%20color%2084012.jpg",
+        ]
+    ],
 ];
 ?>
 
