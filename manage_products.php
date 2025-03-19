@@ -136,7 +136,7 @@ if (isset($_GET['delete_id'])) {
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 3px solid white;
+            border: 3px solid red;
             margin-bottom: 10px;
         }
         .admin-profile p {
@@ -259,7 +259,7 @@ if (isset($_GET['delete_id'])) {
 <body>
     <div class="sidebar">
         <div class="admin-profile">
-            <img src="Images/admin.jpg" alt="Admin Photo">
+            <img src="Images/Devansh%203dxx.jpg" alt="Admin Photo">
             <p>Admin</p>
         </div>
         <h2>Admin Panel</h2>
