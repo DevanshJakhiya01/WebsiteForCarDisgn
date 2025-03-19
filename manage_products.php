@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert new product into the database
     if ($product_image) {
         $stmt = $conn->prepare("INSERT INTO products (name, price, category_id, image, color) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sdisss", $product_name, $product_price, $category_id, $product_image, $product_color);
+        $stmt->bind_param("sdiss", $product_name, $product_price, $category_id, $product_image, $product_color);
     } else {
         $stmt = $conn->prepare("INSERT INTO products (name, price, category_id, color) VALUES (?, ?, ?, ?)");
         $stmt->bind_param("sdis", $product_name, $product_price, $category_id, $product_color);
