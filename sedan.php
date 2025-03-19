@@ -1,4 +1,6 @@
 <?php
+session_start(); // Start the session to manage cart data
+
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -13,48 +15,44 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Check if all required fields are set
-    if (isset($_POST['car_name'], $_POST['wheels'], $_POST['paint'], $_POST['product_id'])) {
-        $car_name = $_POST['car_name'];
-        $wheels = $_POST['wheels'];
-        $paint = $_POST['paint'];
-        $product_id = $_POST['product_id'];
+// Function to handle form submission
+function handleFormSubmission($conn) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Check if all required fields are set
+        if (isset($_POST['car_name'], $_POST['wheels'], $_POST['paint'], $_POST['product_id'])) {
+            $car_name = htmlspecialchars($_POST['car_name']);
+            $wheels = htmlspecialchars($_POST['wheels']);
+            $paint = htmlspecialchars($_POST['paint']);
+            $product_id = intval($_POST['product_id']);
 
-        // Fetch a valid user_id from the users table
-        $sql = "SELECT id FROM users LIMIT 1";
-        $result = $conn->query($sql);
+            // Add product to cart (stored in session)
+            $cart_item = [
+                "product_id" => $product_id,
+                "car_name" => $car_name,
+                "wheels" => $wheels,
+                "paint" => $paint,
+                "price" => 16000.00 // Example price
+            ];
 
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $user_id = $row['id']; // Use the first user's ID
-            $total_amount = 16000.00; // Example total amount
-
-            // Check if the product_id exists in the products table
-            $check_product_sql = "SELECT id FROM products WHERE id = $product_id";
-            $check_product_result = $conn->query($check_product_sql);
-
-            if ($check_product_result->num_rows > 0) {
-                // Insert into orders table
-                $sql = "INSERT INTO orders (user_id, product_id, total_amount, status) 
-                        VALUES ('$user_id', '$product_id', '$total_amount', 'pending')";
-                if ($conn->query($sql)) {
-                    $order_id = $conn->insert_id; // Get the last inserted order ID
-                    echo "<script>alert('Order submitted successfully! Order ID: $order_id');</script>";
-                } else {
-                    echo "<script>alert('Error submitting order: " . $conn->error . "');</script>";
-                }
-            } else {
-                echo "<script>alert('Invalid product ID. Please check the product ID and try again.');</script>";
+            // Initialize cart if it doesn't exist
+            if (!isset($_SESSION['cart'])) {
+                $_SESSION['cart'] = [];
             }
+
+            // Add item to cart
+            $_SESSION['cart'][] = $cart_item;
+
+            // Redirect to cart page
+            header("Location: cart.php");
+            exit();
         } else {
-            echo "<script>alert('No users found in the database. Please add a user first.');</script>";
+            echo "<script>alert('All form fields are required.');</script>";
         }
-    } else {
-        echo "<script>alert('All form fields are required.');</script>";
     }
 }
+
+// Call the function to handle form submission
+handleFormSubmission($conn);
 
 // Sedan data
 $sedans = [
@@ -199,7 +197,7 @@ $sedans = [
 </head>
 <body>
     <div class="logo">
-        <img src="Images/Devansh Car Customization logo 1.jpg" alt="Devansh Car Customization Logo">
+        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
     </div>
     <h1>Welcome to Sedans!</h1>
     <p>This is the sedan page.</p>
@@ -227,7 +225,7 @@ $sedans = [
                         </select>
                         <input type="hidden" name="car_name" value="<?= htmlspecialchars($sedan['name']) ?>">
                         <input type="hidden" name="product_id" value="<?= htmlspecialchars($sedan['id']) ?>">
-                        <button type="submit">Submit</button>
+                        <button type="submit">Add to Cart</button>
                     </div>
                 </form>
             </div>
