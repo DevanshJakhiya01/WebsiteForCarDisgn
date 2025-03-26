@@ -57,7 +57,7 @@ handleFormSubmission($conn);
 // Hatchback data
 $hatchbacks = [
     [
-        "id" => 1, // Add a unique ID for each car
+        "id" => 4, // Add a unique ID for each car
         "name" => "Suzuki Swift",
         "image" => "Images/Suzuki_Swift_04.jpg",
         "description" => "A popular and fuel-efficient hatchback.",
@@ -73,7 +73,7 @@ $hatchbacks = [
         ]
     ],
     [
-        "id" => 2, // Add a unique ID for each car
+        "id" => 5, // Add a unique ID for each car
         "name" => "Honda Civic",
         "image" => "Images/2023-honda-civic-sdn_100861363_h.jpg",
         "description" => "Known for its reliability and sporty handling.",
@@ -89,7 +89,7 @@ $hatchbacks = [
         ]
     ],
     [
-        "id" => 3, // Add a unique ID for each car
+        "id" => 6, // Add a unique ID for each car
         "name" => "Volkswagen Golf",
         "image" => "Images/volkswagen-golf-2020-specs-01.jpg",
         "description" => "A classic hatchback with a premium feel.",
