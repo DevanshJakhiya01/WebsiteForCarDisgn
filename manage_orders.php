@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             margin: 0;
             padding: 0;
             display: flex;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: auto;
             color: red;
         }
@@ -75,6 +75,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
+        }
+        .admin-profile {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid red;
+            margin-bottom: 10px;
+        }
+        .admin-profile p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
         }
         .sidebar ul {
             list-style-type: none;
@@ -157,7 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 <body>
     <div class="sidebar">
         <div class="admin-profile">
-            <img src="Images/admin.jpg" alt="Admin Photo">
+            <img src="Images/Devansh%203dxx.jpg" alt="Admin Photo">
             <p>Admin</p>
         </div>
         <h2>Admin Panel</h2>
