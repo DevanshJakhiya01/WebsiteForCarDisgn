@@ -31,7 +31,7 @@ function handleFormSubmission($conn) {
                 "car_name" => $car_name,
                 "wheels" => $wheels,
                 "paint" => $paint,
-                "price" => 16000.00 // Example price
+                "price" => 25000.00 // Example price
             ];
 
             // Initialize cart if it doesn't exist
