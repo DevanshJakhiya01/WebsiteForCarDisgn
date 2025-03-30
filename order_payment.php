@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -15,164 +13,128 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $order_id = intval($_POST['order_id']); // Sanitize input
-    $payment_amount = floatval($_POST['payment_amount']) * 100; //Amount in paise
-    $payment_method = trim($_POST['payment_method']);
-    $upi_id = trim($_POST['upi_id']); // UPI ID field
-
-    // Validate inputs
-    if (empty($order_id) || empty($payment_amount) || empty($payment_method)) {
-        $error_message = "Please fill in all fields.";
-    } elseif ($payment_method === 'upi' && empty($upi_id)) {
-        $error_message = "Please enter your UPI ID.";
-    } else {
-
-        // Razorpay integration
-        require('razorpay-php/Razorpay.php'); // Include Razorpay PHP library
-
-        use Razorpay\Api\Api;
-        use Razorpay\Api\Errors\SignatureVerificationError;
-
-        $razorpayKeyId = 'YOUR_RAZORPAY_KEY_ID'; // Replace with your key
-        $razorpayKeySecret = 'YOUR_RAZORPAY_KEY_SECRET'; // Replace with your secret
-
-        try {
-            $api = new Api($razorpayKeyId, $razorpayKeySecret);
-
-            $orderData = [
-                'receipt'         => 'order_' . time(),
-                'amount'          => $payment_amount, // Amount in paise
-                'currency'        => 'INR',
-                'payment_capture' => 1 // auto capture
-            ];
-
-            $razorpayOrder = $api->order->create($orderData);
-            $razorpay_order_id = $razorpayOrder['id'];
-
-            // Store order details in the database
-            $sql = "INSERT INTO payment (order_id, payment_amount, payment_method, upi_id, razorpay_order_id, payment_status) VALUES (?, ?, ?, ?, ?, 'pending')";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("idsss", $order_id, $payment_amount / 100, $payment_method, $upi_id, $razorpay_order_id); // Divide by 100 to store amount in Rupees.
-
-            if ($stmt->execute()) {
-
-                // Redirect to Razorpay checkout
-                ?>
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>PhonePe Payment</title>
-                </head>
-                <body>
-                    <form id="paymentForm">
-                        <script src="https://checkout.razorpay.com/v1/checkout.js"
-                                data-key="<?php echo $razorpayKeyId; ?>"
-                                data-amount="<?php echo $payment_amount; ?>"
-                                data-currency="INR"
-                                data-order_id="<?php echo $razorpay_order_id; ?>"
-                                data-buttontext="Pay with UPI"
-                                data-name="Your Company Name"
-                                data-description="Payment for your order"
-                                data-image="Your Company Logo URL"
-                                data-prefill.name="Customer Name"
-                                data-prefill.email="customer@example.com"
-                                data-theme.color="#F37254"></script>
-                        <input type="hidden" custom="Hidden Element">
-                    </form>
-
-                    <script type="text/javascript">
-                        window.onload = function(){
-                          document.forms['paymentForm'].submit()
-                        };
-                    </script>
-                </body>
-                </html>
-                <?php
-                exit; // Stop further execution
-            } else {
-                $error_message = "Error submitting payment details: " . $stmt->error;
-            }
-
-        } catch (Exception $e) {
-            $error_message = 'Razorpay Order Creation Error: ' . $e->getMessage();
-        }
+// First, let's examine the orders table structure
+$orders_columns = [];
+$columns_result = $conn->query("SHOW COLUMNS FROM orders");
+if ($columns_result) {
+    while ($row = $columns_result->fetch_assoc()) {
+        $orders_columns[] = $row['Field'];
     }
 }
+
+// Determine the correct product name column
+$product_column = "";
+if (in_array('product_name', $orders_columns)) {
+    $product_column = 'product_name';
+} elseif (in_array('car_model', $orders_columns)) {
+    $product_column = 'car_model';
+} elseif (in_array('model_name', $orders_columns)) {
+    $product_column = 'model_name';
+} elseif (in_array('product_id', $orders_columns)) {
+    // If product is referenced by ID, we'll need to join with products table
+    $product_column = 'product_id';
+} else {
+    die("Error: Could not determine product information column in orders table.");
+}
+
+// Build the appropriate query
+if ($product_column == 'product_id' && in_array('products', $conn->query("SHOW TABLES")->fetch_all())) {
+    // Join with products table if product_id exists
+    $sql = "SELECT orders.id, users.username, 
+                   products.name AS product_name, 
+                   orders.total_amount, orders.status, orders.created_at
+            FROM orders
+            INNER JOIN users ON orders.user_id = users.id
+            LEFT JOIN products ON orders.product_id = products.id";
+} else {
+    // Use direct column from orders table
+    $sql = "SELECT orders.id, users.username, 
+                   orders.$product_column AS product_name, 
+                   orders.total_amount, orders.status, orders.created_at
+            FROM orders
+            INNER JOIN users ON orders.user_id = users.id";
+}
+
+$result = $conn->query($sql);
+if (!$result) {
+    die("Error executing query: " . $conn->error);
+}
+
+// [Rest of your existing code for handling deletions and updates...]
 ?>
 
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders</title>
+    <style>
+        /* [Your existing CSS styles...] */
+    </style>
+</head>
 <body>
-    <div class="logo">
-        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+    <div class="sidebar">
+        <!-- [Your existing sidebar...] -->
     </div>
 
-    <div class="form-container">
-        <h2>Order Payment</h2>
-        <?php if (isset($error_message)): ?>
-            <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
-        <?php endif; ?>
-        <?php if (isset($success_message)): ?>
-            <div class="success-message"><?= htmlspecialchars($success_message) ?></div>
-        <?php endif; ?>
-        <form action="order_payment.php" method="POST" onsubmit="return validateForm()">
-            <label for="order_id">Order ID:</label>
-            <input type="number" name="order_id" placeholder="Order ID" required>
+    <div class="main-content">
+        <div class="logo">
+            <!-- [Your existing logo...] -->
+        </div>
 
-            <label for="payment_amount">Payment Amount:</label>
-            <input type="number" step="0.01" name="payment_amount" placeholder="Payment Amount" required>
-
-            <label for="payment_method">Payment Method:</label>
-            <select name="payment_method" onchange="toggleUPIField()" required>
-                <option value="upi">UPI</option>
-            </select>
-
-            <div id="upi-field" class="upi-field">
-                <label for="upi_id">UPI ID:</label>
-                <input type="text" name="upi_id" placeholder="UPI ID">
-            </div>
-
-            <button type="submit">Submit Payment</button>
-        </form>
+        <div class="table-container">
+            <h2>Manage Orders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Product</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>".htmlspecialchars($row['id'])."</td>
+                                    <td>".htmlspecialchars($row['username'])."</td>
+                                    <td>".htmlspecialchars($row['product_name'])."</td>
+                                    <td>".htmlspecialchars($row['total_amount'])."</td>
+                                    <td>
+                                        <form class='status-form' method='POST' action=''>
+                                            <input type='hidden' name='order_id' value='".htmlspecialchars($row['id'])."'>
+                                            <select name='status'>
+                                                <option value='Pending'".($row['status'] == 'Pending' ? ' selected' : '').">Pending</option>
+                                                <option value='Processing'".($row['status'] == 'Processing' ? ' selected' : '').">Processing</option>
+                                                <option value='Completed'".($row['status'] == 'Completed' ? ' selected' : '').">Completed</option>
+                                                <option value='Cancelled'".($row['status'] == 'Cancelled' ? ' selected' : '').">Cancelled</option>
+                                            </select>
+                                            <button type='submit' name='update_status'>Update</button>
+                                        </form>
+                                    </td>
+                                    <td>".htmlspecialchars($row['created_at'])."</td>
+                                    <td>
+                                        <a href='manage_orders.php?delete_id=".htmlspecialchars($row['id'])."' onclick=\"return confirm('Are you sure you want to delete this order?');\"><button>Delete</button></a>
+                                    </td>
+                                </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='7'>No orders found.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <script>
-        // ... (your JavaScript code) ...
-    </script>
 </body>
 </html>
 
 <?php
-// Payment verification (webhook or redirect)
-if (isset($_POST['razorpay_payment_id']) && isset($_POST['razorpay_order_id']) && isset($_POST['razorpay_signature'])) {
-
-    $razorpay_payment_id = $_POST['razorpay_payment_id'];
-    $razorpay_order_id = $_POST['razorpay_order_id'];
-    $razorpay_signature = $_POST['razorpay_signature'];
-
-    $attributes = array('razorpay_order_id' => $razorpay_order_id, 'razorpay_payment_id' => $razorpay_payment_id, 'razorpay_signature' => $razorpay_signature);
-
-    try {
-        $api->utility->verifyPaymentSignature($attributes);
-        // Payment successful
-        echo "Payment Successful. Payment ID: " . $razorpay_payment_id;
-
-        // Update order status in the database
-        $sql = "UPDATE payment SET payment_status = 'paid', razorpay_payment_id = ? WHERE razorpay_order_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $razorpay_payment_id, $razorpay_order_id);
-        $stmt->execute();
-    } catch (SignatureVerificationError $e) {
-        $error = 'Razorpay Signature Verification Error: ' . $e->getMessage();
-        echo $error;
-        // Payment failed.
-        $sql = "UPDATE payment SET payment_status = 'failed' WHERE razorpay_order_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $razorpay_order_id);
-        $stmt->execute();
-    }
-    exit; //prevent any further html output.
-}
+$conn->close();
 ?>

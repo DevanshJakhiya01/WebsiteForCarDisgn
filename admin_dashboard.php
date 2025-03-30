@@ -1,4 +1,4 @@
-<?php
+?php
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -13,44 +13,103 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch payments from the database
-$sql = "SELECT payment.id, users.username, orders.id AS order_id, payment.payment_amount, payment.payment_method, payment.payment_status, payment.created_at 
-        FROM payment 
-        INNER JOIN users ON payment.user_id = users.id 
-        INNER JOIN orders ON payment.order_id = orders.id";
-$result = $conn->query($sql);
+// First, let's examine the database structure
+$tables = [];
+$result = $conn->query("SHOW TABLES");
+while ($row = $result->fetch_row()) {
+    $tables[] = $row[0];
+}
 
-// Handle payment deletion
+// Determine the correct relationship between tables
+$join_condition = "";
+if (in_array('payment', $tables) && in_array('users', $tables)) {
+    // Check if payment has a direct user relationship
+    $columns = $conn->query("SHOW COLUMNS FROM payment");
+    $has_user_id = false;
+    while ($col = $columns->fetch_assoc()) {
+        if ($col['Field'] == 'user_id' || $col['Field'] == 'customer_id') {
+            $has_user_id = true;
+            $user_col = $col['Field'];
+            break;
+        }
+    }
+    
+    if ($has_user_id) {
+        $join_condition = "INNER JOIN users ON payment.$user_col = users.id";
+    } elseif (in_array('orders', $tables)) {
+        // Check how orders relates to users
+        $columns = $conn->query("SHOW COLUMNS FROM orders");
+        $has_user_id = false;
+        while ($col = $columns->fetch_assoc()) {
+            if ($col['Field'] == 'user_id' || $col['Field'] == 'customer_id') {
+                $has_user_id = true;
+                $user_col = $col['Field'];
+                break;
+            }
+        }
+        
+        if ($has_user_id) {
+            $join_condition = "INNER JOIN orders ON payment.order_id = orders.id 
+                              INNER JOIN users ON orders.$user_col = users.id";
+        } else {
+            die("Error: Could not determine relationship between orders and users tables.");
+        }
+    } else {
+        die("Error: Required tables not found in database.");
+    }
+} else {
+    die("Error: Required tables not found in database.");
+}
+
+// Build the SQL query
+$sql = "SELECT payment.id, users.username, payment.order_id, 
+               payment.payment_amount, payment.payment_method, 
+               payment.payment_status, payment.created_at 
+        FROM payment 
+        $join_condition";
+
+$result = $conn->query($sql);
+if (!$result) {
+    die("Error executing query: " . $conn->error);
+}
+
+// Handle payment deletion (using prepared statement)
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
-    $delete_sql = "DELETE FROM payment WHERE id = $delete_id";
-    if ($conn->query($delete_sql)) {
+    $delete_sql = "DELETE FROM payment WHERE id = ?";
+    $stmt = $conn->prepare($delete_sql);
+    $stmt->bind_param("i", $delete_id);
+
+    if ($stmt->execute()) {
         echo "<script>alert('Payment deleted successfully!');</script>";
         echo "<script>window.location.href = 'manage_payments.php';</script>";
     } else {
-        echo "<script>alert('Error deleting payment: " . $conn->error . "');</script>";
+        echo "<script>alert('Error deleting payment: " . $stmt->error . "');</script>";
     }
+    $stmt->close();
 }
 
-// Handle payment status update
+// Handle payment status update (using prepared statement)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $payment_id = $_POST['payment_id'];
     $new_status = $_POST['status'];
 
-    // Update payment status in the database
-    $update_sql = "UPDATE payment SET payment_status = '$new_status' WHERE id = $payment_id";
-    if ($conn->query($update_sql)) {
+    $update_sql = "UPDATE payment SET payment_status = ? WHERE id = ?";
+    $stmt = $conn->prepare($update_sql);
+    $stmt->bind_param("si", $new_status, $payment_id);
+
+    if ($stmt->execute()) {
         echo "<script>alert('Payment status updated successfully!');</script>";
         echo "<script>window.location.href = 'manage_payments.php';</script>";
     } else {
-        echo "<script>alert('Error updating payment status: " . $conn->error . "');</script>";
+        echo "<script>alert('Error updating payment status: " . $stmt->error . "');</script>";
     }
+    $stmt->close();
 }
 ?>
 
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
