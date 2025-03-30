@@ -1,4 +1,4 @@
-?php
+<?php
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -13,99 +13,49 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// First, let's examine the database structure
-$tables = [];
-$result = $conn->query("SHOW TABLES");
-while ($row = $result->fetch_row()) {
-    $tables[] = $row[0];
-}
-
-// Determine the correct relationship between tables
-$join_condition = "";
-if (in_array('payment', $tables) && in_array('users', $tables)) {
-    // Check if payment has a direct user relationship
-    $columns = $conn->query("SHOW COLUMNS FROM payment");
-    $has_user_id = false;
-    while ($col = $columns->fetch_assoc()) {
-        if ($col['Field'] == 'user_id' || $col['Field'] == 'customer_id') {
-            $has_user_id = true;
-            $user_col = $col['Field'];
-            break;
+// Function to get column names from a table
+function getTableColumns($conn, $tableName) {
+    $columns = array();
+    $result = $conn->query("SHOW COLUMNS FROM $tableName");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $columns[] = $row['Field'];
         }
     }
-    
-    if ($has_user_id) {
-        $join_condition = "INNER JOIN users ON payment.$user_col = users.id";
-    } elseif (in_array('orders', $tables)) {
-        // Check how orders relates to users
-        $columns = $conn->query("SHOW COLUMNS FROM orders");
-        $has_user_id = false;
-        while ($col = $columns->fetch_assoc()) {
-            if ($col['Field'] == 'user_id' || $col['Field'] == 'customer_id') {
-                $has_user_id = true;
-                $user_col = $col['Field'];
-                break;
-            }
-        }
-        
-        if ($has_user_id) {
-            $join_condition = "INNER JOIN orders ON payment.order_id = orders.id 
-                              INNER JOIN users ON orders.$user_col = users.id";
-        } else {
-            die("Error: Could not determine relationship between orders and users tables.");
-        }
-    } else {
-        die("Error: Required tables not found in database.");
-    }
-} else {
-    die("Error: Required tables not found in database.");
+    return $columns;
 }
 
-// Build the SQL query
-$sql = "SELECT payment.id, users.username, payment.order_id, 
-               payment.payment_amount, payment.payment_method, 
-               payment.payment_status, payment.created_at 
-        FROM payment 
-        $join_condition";
-
-$result = $conn->query($sql);
-if (!$result) {
-    die("Error executing query: " . $conn->error);
+// Get columns from orders table
+$ordersColumns = getTableColumns($conn, 'orders');
+if (empty($ordersColumns)) {
+    die("Error: Could not retrieve columns from orders table.");
 }
 
-// Handle payment deletion (using prepared statement)
-if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
-    $delete_sql = "DELETE FROM payment WHERE id = ?";
-    $stmt = $conn->prepare($delete_sql);
-    $stmt->bind_param("i", $delete_id);
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Payment deleted successfully!');</script>";
-        echo "<script>window.location.href = 'manage_payments.php';</script>";
-    } else {
-        echo "<script>alert('Error deleting payment: " . $stmt->error . "');</script>";
-    }
-    $stmt->close();
+// Get columns from users table
+$usersColumns = getTableColumns($conn, 'users');
+if (empty($usersColumns)) {
+    die("Error: Could not retrieve columns from users table.");
 }
 
-// Handle payment status update (using prepared statement)
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-    $payment_id = $_POST['payment_id'];
-    $new_status = $_POST['status'];
+// Determine the correct column names to use
+$amountColumn = in_array('total_amount', $ordersColumns) ? 'total_amount' : 
+               (in_array('amount', $ordersColumns) ? 'amount' : 
+               (in_array('price', $ordersColumns) ? 'price' : 'total'));
 
-    $update_sql = "UPDATE payment SET payment_status = ? WHERE id = ?";
-    $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("si", $new_status, $payment_id);
+$productColumn = in_array('product_name', $ordersColumns) ? 'product_name' : 
+                (in_array('car_model', $ordersColumns) ? 'car_model' : 
+                (in_array('model_name', $ordersColumns) ? 'model_name' : 'product'));
 
-    if ($stmt->execute()) {
-        echo "<script>alert('Payment status updated successfully!');</script>";
-        echo "<script>window.location.href = 'manage_payments.php';</script>";
-    } else {
-        echo "<script>alert('Error updating payment status: " . $stmt->error . "');</script>";
-    }
-    $stmt->close();
-}
+$statusColumn = in_array('status', $ordersColumns) ? 'status' : 'order_status';
+$dateColumn = in_array('created_at', $ordersColumns) ? 'created_at' : 
+             (in_array('order_date', $ordersColumns) ? 'order_date' : 'date_created');
+
+// Get statistics for dashboard
+$stats = [];
+$stats['total_orders'] = $conn->query("SELECT COUNT(*) FROM orders")->fetch_row()[0];
+$stats['pending_orders'] = $conn->query("SELECT COUNT(*) FROM orders WHERE $statusColumn = 'Pending'")->fetch_row()[0];
+$stats['total_users'] = $conn->query("SELECT COUNT(*) FROM users")->fetch_row()[0];
+$stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_row()[0];
 ?>
 
 <!DOCTYPE html>
@@ -113,9 +63,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Payments</title>
+    <title>Admin Dashboard - Car Customization</title>
     <style>
-          body {
+        body {
             font-family: sans-serif;
             margin: 0;
             padding: 0;
@@ -208,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             display: block;
         }
         
-        .order-container {
+        .dashboard-container {
             background-color: white;
             padding: 20px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -219,6 +169,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             text-align: center;
             color: #d81b60;
             margin-bottom: 20px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid darksalmon;
+        }
+        
+        .stat-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #d81b60;
+            margin: 10px 0;
+        }
+        
+        .recent-orders {
+            margin-top: 30px;
         }
         
         table {
@@ -246,44 +228,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             background-color: #ffe6ee;
         }
         
-        .status-form {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background-color: white;
-        }
-        
-        button {
+        .btn {
             padding: 8px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
         
-        .update-btn {
+        .btn-primary {
             background-color: darksalmon;
             color: white;
         }
         
-        .update-btn:hover {
+        .btn-primary:hover {
             background-color: #e9967a;
-        }
-        
-        .delete-btn {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        .delete-btn:hover {
-            background-color: #d32f2f;
         }
         
         .success-message {
@@ -293,13 +255,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             border-radius: 4px;
             margin-bottom: 20px;
             text-align: center;
-        }
-        
-        .no-orders {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-style: italic;
         }
         
         @media (max-width: 768px) {
@@ -316,6 +271,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 padding: 20px;
             }
             
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
             table {
                 display: block;
                 overflow-x: auto;
@@ -323,78 +282,116 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
         }
     </style>
 </head>
-
 <body>
     <div class="sidebar">
         <div class="admin-profile">
             <img src="Images/Devansh%203dxx.jpg" alt="Admin Photo">
-            <p>Admin</p>
+            <p>Admin Panel</p>
         </div>
-        <h2>Admin Panel</h2>
+        <h2>Navigation</h2>
         <ul>
-            <li><a href="admin_dashboard.php">Users</a></li>
-            <li><a href="add_user.php">Add User</a></li>
-            <li><a href="manage_categories.php">Categories</a></li>
+            <li><a href="admin_dashboard.php" class="active">Dashboard</a></li>
+            <li><a href="manage_users.php">Users</a></li>
             <li><a href="manage_products.php">Products</a></li>
             <li><a href="manage_orders.php">Orders</a></li>
             <li><a href="manage_payments.php">Payments</a></li>
+            <li><a href="reports.php">Reports</a></li>
+            <li><a href="settings.php">Settings</a></li>
+            <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="logo">
-            <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
+            <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Car Customization Logo">
         </div>
-
-        <div class="table-container">
-            <h2>Manage Payments</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Order ID</th>
-                        <th>Amount</th>
-                        <th>Payment Method</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                    <td>{$row['id']}</td>
-                                    <td>{$row['username']}</td>
-                                    <td>{$row['order_id']}</td>
-                                    <td>{$row['payment_amount']}</td>
-                                    <td>{$row['payment_method']}</td>
-                                    <td>
-                                        <form class='status-form' method='POST' action=''>
-                                            <input type='hidden' name='payment_id' value='{$row['id']}'>
-                                            <select name='status'>
-                                                <option value='Pending'" . ($row['payment_status'] == 'Pending' ? ' selected' : '') . ">Pending</option>
-                                                <option value='Completed'" . ($row['payment_status'] == 'Completed' ? ' selected' : '') . ">Completed</option>
-                                                <option value='Failed'" . ($row['payment_status'] == 'Failed' ? ' selected' : '') . ">Failed</option>
-                                            </select>
-                                            <button type='submit' name='update_status'>Update</button>
-                                        </form>
-                                    </td>
-                                    <td>{$row['created_at']}</td>
-                                    <td>
-                                        <a href='manage_payments.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this payment?');\"><button>Delete</button></a>
-                                    </td>
-                                  </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='8'>No payments found.</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+        
+        <div class="dashboard-container">
+            <h1>Admin Dashboard</h1>
+            
+            <?php if (isset($_GET['success'])): ?>
+                <div class="success-message">
+                    <?= htmlspecialchars(urldecode($_GET['success'])) ?>
+                </div>
+            <?php endif; ?>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Total Orders</h3>
+                    <div class="value"><?= $stats['total_orders'] ?></div>
+                    <a href="manage_orders.php" class="btn btn-primary">View Orders</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Pending Orders</h3>
+                    <div class="value"><?= $stats['pending_orders'] ?></div>
+                    <a href="manage_orders.php?status=Pending" class="btn btn-primary">View Pending</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="value"><?= $stats['total_users'] ?></div>
+                    <a href="manage_users.php" class="btn btn-primary">Manage Users</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Products</h3>
+                    <div class="value"><?= $stats['total_products'] ?></div>
+                    <a href="manage_products.php" class="btn btn-primary">Manage Products</a>
+                </div>
+            </div>
+            
+            <div class="recent-orders">
+                <h2>Recent Orders</h2>
+                <?php
+                $recent_orders_query = "SELECT orders.id, users.username, 
+                                      orders.$productColumn AS product_name, 
+                                      orders.$amountColumn AS total_amount, 
+                                      orders.$statusColumn AS status, 
+                                      orders.$dateColumn AS created_at 
+                                      FROM orders 
+                                      INNER JOIN users ON orders.user_id = users.id 
+                                      ORDER BY $dateColumn DESC LIMIT 5";
+                
+                $recent_orders = $conn->query($recent_orders_query);
+                
+                if ($recent_orders->num_rows > 0): ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($order = $recent_orders->fetch_assoc()): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($order['id']) ?></td>
+                                <td><?= htmlspecialchars($order['username']) ?></td>
+                                <td><?= htmlspecialchars($order['product_name']) ?></td>
+                                <td>$<?= number_format($order['total_amount'], 2) ?></td>
+                                <td><?= htmlspecialchars($order['status']) ?></td>
+                                <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="manage_orders.php" class="btn btn-primary">View All Orders</a>
+                    </div>
+                <?php else: ?>
+                    <p>No recent orders found</p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>
 </html>
+
+<?php
+$conn->close();
+?>
