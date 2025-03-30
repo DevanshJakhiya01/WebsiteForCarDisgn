@@ -18,34 +18,85 @@ if ($conn->connect_error) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $order_id = intval($_POST['order_id']); // Sanitize input
-    $payment_amount = floatval($_POST['payment_amount']); // Sanitize input
+    $payment_amount = floatval($_POST['payment_amount']) * 100; //Amount in paise
     $payment_method = trim($_POST['payment_method']);
-    $card_number = trim($_POST['card_number']);
-    $expiry_date = trim($_POST['expiry_date']);
-    $cvv = trim($_POST['cvv']);
     $upi_id = trim($_POST['upi_id']); // UPI ID field
 
     // Validate inputs
     if (empty($order_id) || empty($payment_amount) || empty($payment_method)) {
         $error_message = "Please fill in all fields.";
+    } elseif ($payment_method === 'upi' && empty($upi_id)) {
+        $error_message = "Please enter your UPI ID.";
     } else {
-        // Additional validation for card details if payment method is not UPI
-        if ($payment_method !== 'upi' && (empty($card_number) || empty($expiry_date) || empty($cvv))) {
-            $error_message = "Please fill in all card details.";
-        } elseif ($payment_method === 'upi' && empty($upi_id)) {
-            $error_message = "Please enter your UPI ID.";
-        } else {
-            // Insert payment details into the database
-            $sql = "INSERT INTO payment (order_id, payment_amount, payment_method, card_number, expiry_date, cvv, upi_id, payment_status) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')";
+
+        // Razorpay integration
+        require('razorpay-php/Razorpay.php'); // Include Razorpay PHP library
+
+        use Razorpay\Api\Api;
+        use Razorpay\Api\Errors\SignatureVerificationError;
+
+        $razorpayKeyId = 'YOUR_RAZORPAY_KEY_ID'; // Replace with your key
+        $razorpayKeySecret = 'YOUR_RAZORPAY_KEY_SECRET'; // Replace with your secret
+
+        try {
+            $api = new Api($razorpayKeyId, $razorpayKeySecret);
+
+            $orderData = [
+                'receipt'         => 'order_' . time(),
+                'amount'          => $payment_amount, // Amount in paise
+                'currency'        => 'INR',
+                'payment_capture' => 1 // auto capture
+            ];
+
+            $razorpayOrder = $api->order->create($orderData);
+            $razorpay_order_id = $razorpayOrder['id'];
+
+            // Store order details in the database
+            $sql = "INSERT INTO payment (order_id, payment_amount, payment_method, upi_id, razorpay_order_id, payment_status) VALUES (?, ?, ?, ?, ?, 'pending')";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("idsssss", $order_id, $payment_amount, $payment_method, $card_number, $expiry_date, $cvv, $upi_id);
+            $stmt->bind_param("idsss", $order_id, $payment_amount / 100, $payment_method, $upi_id, $razorpay_order_id); // Divide by 100 to store amount in Rupees.
 
             if ($stmt->execute()) {
-                $success_message = "Payment submitted successfully!";
+
+                // Redirect to Razorpay checkout
+                ?>
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>PhonePe Payment</title>
+                </head>
+                <body>
+                    <form id="paymentForm">
+                        <script src="https://checkout.razorpay.com/v1/checkout.js"
+                                data-key="<?php echo $razorpayKeyId; ?>"
+                                data-amount="<?php echo $payment_amount; ?>"
+                                data-currency="INR"
+                                data-order_id="<?php echo $razorpay_order_id; ?>"
+                                data-buttontext="Pay with UPI"
+                                data-name="Your Company Name"
+                                data-description="Payment for your order"
+                                data-image="Your Company Logo URL"
+                                data-prefill.name="Customer Name"
+                                data-prefill.email="customer@example.com"
+                                data-theme.color="#F37254"></script>
+                        <input type="hidden" custom="Hidden Element">
+                    </form>
+
+                    <script type="text/javascript">
+                        window.onload = function(){
+                          document.forms['paymentForm'].submit()
+                        };
+                    </script>
+                </body>
+                </html>
+                <?php
+                exit; // Stop further execution
             } else {
-                $error_message = "Error submitting payment: " . $stmt->error;
+                $error_message = "Error submitting payment details: " . $stmt->error;
             }
+
+        } catch (Exception $e) {
+            $error_message = 'Razorpay Order Creation Error: ' . $e->getMessage();
         }
     }
 }
@@ -53,90 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Payment</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
-            background-size: cover;
-            color: red;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .logo {
-            width: 300px;
-            margin-bottom: 20px;
-        }
-        .logo img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .form-container input, .form-container select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .form-container button {
-            width: 100%;
-            padding: 10px;
-            background-color: darksalmon;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .form-container button:hover {
-            background-color: #e9967a;
-        }
-        .error-message {
-            color: red;
-            margin-bottom: 10px;
-        }
-        .success-message {
-            color: green;
-            margin-bottom: 10px;
-        }
-        .upi-field {
-            display: none; /* Hide UPI field by default */
-        }
-    </style>
-    <script>
-        function toggleUPIField() {
-            const paymentMethod = document.querySelector('select[name="payment_method"]').value;
-            const upiField = document.getElementById('upi-field');
-
-            if (paymentMethod === 'upi') {
-                upiField.style.display = 'block'; // Show UPI field
-            } else {
-                upiField.style.display = 'none'; // Hide UPI field
-            }
-        }
-    </script>
-</head>
-
 <body>
     <div class="logo">
         <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
@@ -159,26 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <label for="payment_method">Payment Method:</label>
             <select name="payment_method" onchange="toggleUPIField()" required>
-                <option value="credit_card">Credit Card</option>
-                <option value="debit_card">Debit Card</option>
-                <option value="paypal">PayPal</option>
                 <option value="upi">UPI</option>
-                <option value="cash_on_delivery">Cash on Delivery</option>
             </select>
 
-            <!-- Card Details (Hidden for UPI) -->
-            <div id="card-details">
-                <label for="card_number">Card Number:</label>
-                <input type="text" name="card_number" placeholder="Card Number">
-
-                <label for="expiry_date">Expiry Date:</label>
-                <input type="text" name="expiry_date" placeholder="MM/YY">
-
-                <label for="cvv">CVV:</label>
-                <input type="text" name="cvv" placeholder="CVV">
-            </div>
-
-            <!-- UPI Field (Hidden by Default) -->
             <div id="upi-field" class="upi-field">
                 <label for="upi_id">UPI ID:</label>
                 <input type="text" name="upi_id" placeholder="UPI ID">
@@ -189,32 +139,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script>
-        // Function to toggle UPI field visibility
-        function toggleUPIField() {
-            const paymentMethod = document.querySelector('select[name="payment_method"]').value;
-            const cardDetails = document.getElementById('card-details');
-            const upiField = document.getElementById('upi-field');
-
-            if (paymentMethod === 'upi') {
-                cardDetails.style.display = 'none'; // Hide card details
-                upiField.style.display = 'block'; // Show UPI field
-            } else {
-                cardDetails.style.display = 'block'; // Show card details
-                upiField.style.display = 'none'; // Hide UPI field
-            }
-        }
-
-        // Function to validate form before submission
-        function validateForm() {
-            const paymentMethod = document.querySelector('select[name="payment_method"]').value;
-            const upiId = document.querySelector('input[name="upi_id"]').value;
-
-            if (paymentMethod === 'upi' && upiId.trim() === '') {
-                alert('Please enter your UPI ID.');
-                return false;
-            }
-            return true;
-        }
+        // ... (your JavaScript code) ...
     </script>
 </body>
 </html>
+
+<?php
+// Payment verification (webhook or redirect)
+if (isset($_POST['razorpay_payment_id']) && isset($_POST['razorpay_order_id']) && isset($_POST['razorpay_signature'])) {
+
+    $razorpay_payment_id = $_POST['razorpay_payment_id'];
+    $razorpay_order_id = $_POST['razorpay_order_id'];
+    $razorpay_signature = $_POST['razorpay_signature'];
+
+    $attributes = array('razorpay_order_id' => $razorpay_order_id, 'razorpay_payment_id' => $razorpay_payment_id, 'razorpay_signature' => $razorpay_signature);
+
+    try {
+        $api->utility->verifyPaymentSignature($attributes);
+        // Payment successful
+        echo "Payment Successful. Payment ID: " . $razorpay_payment_id;
+
+        // Update order status in the database
+        $sql = "UPDATE payment SET payment_status = 'paid', razorpay_payment_id = ? WHERE razorpay_order_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $razorpay_payment_id, $razorpay_order_id);
+        $stmt->execute();
+    } catch (SignatureVerificationError $e) {
+        $error = 'Razorpay Signature Verification Error: ' . $e->getMessage();
+        echo $error;
+        // Payment failed.
+        $sql = "UPDATE payment SET payment_status = 'failed' WHERE razorpay_order_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $razorpay_order_id);
+        $stmt->execute();
+    }
+    exit; //prevent any further html output.
+}
+?>
