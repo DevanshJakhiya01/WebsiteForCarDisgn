@@ -1,450 +1,543 @@
 <?php
-// Start the session
 session_start();
+require_once 'db_connection.php';
 
-// Check if user is logged in, otherwise redirect to login page
+// Check authentication
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Database connection
-require_once 'db_connection.php';
+// Get user data
+$user_id = $_SESSION['user_id'];
+$user_query = $conn->prepare("SELECT name, email, profile_image, role FROM users WHERE id = ?");
+$user_query->bind_param("i", $user_id);
+$user_query->execute();
+$user = $user_query->get_result()->fetch_assoc();
 
-// Fetch admin profile data
-$admin_id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT name, email, profile_image FROM users WHERE id = ?");
-$stmt->bind_param("i", $admin_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$admin = $result->fetch_assoc();
+// Report types for filter
+$report_types = ['Sales', 'Inventory', 'Customers', 'Customizations', 'Financial'];
 
-// Fetch reports data (this is just an example - adjust according to your actual reports)
-$reports = [];
-$report_stmt = $conn->query("
-    SELECT 
-        report_id, 
-        report_name, 
-        report_type, 
-        generated_date, 
-        status 
-    FROM reports 
-    ORDER BY generated_date DESC 
-    LIMIT 10
-");
-if ($report_stmt) {
-    $reports = $report_stmt->fetch_all(MYSQLI_ASSOC);
+// Get filter parameters
+$type_filter = $_GET['type'] ?? '';
+$date_from = $_GET['date_from'] ?? date('Y-m-01');
+$date_to = $_GET['date_to'] ?? date('Y-m-d');
+
+// Base query
+$query = "SELECT r.*, u.name as generated_by FROM reports r 
+          JOIN users u ON r.user_id = u.id 
+          WHERE r.generated_date BETWEEN ? AND ?";
+$params = [$date_from, $date_to];
+$types = "ss";
+
+// Apply type filter
+if (!empty($type_filter) && in_array($type_filter, $report_types)) {
+    $query .= " AND r.report_type = ?";
+    $params[] = $type_filter;
+    $types .= "s";
 }
 
-// Get counts for stats cards
-$total_reports = $conn->query("SELECT COUNT(*) as count FROM reports")->fetch_assoc()['count'];
-$pending_reports = $conn->query("SELECT COUNT(*) as count FROM reports WHERE status = 'pending'")->fetch_assoc()['count'];
-$completed_reports = $conn->query("SELECT COUNT(*) as count FROM reports WHERE status = 'completed'")->fetch_assoc()['count'];
-$recent_reports = $conn->query("SELECT COUNT(*) as count FROM reports WHERE generated_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetch_assoc()['count'];
+// Add sorting
+$sort = $_GET['sort'] ?? 'generated_date';
+$order = $_GET['order'] ?? 'DESC';
+$query .= " ORDER BY $sort $order";
+
+// Prepare and execute
+$stmt = $conn->prepare($query);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$reports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Get stats for cards
+$stats = [
+    'total' => count($reports),
+    'pending' => 0,
+    'completed' => 0,
+    'last_7_days' => 0
+];
+
+foreach ($reports as $report) {
+    if ($report['status'] == 'pending') $stats['pending']++;
+    if ($report['status'] == 'completed') $stats['completed']++;
+    if (strtotime($report['generated_date']) >= strtotime('-7 days')) $stats['last_7_days']++;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports Dashboard</title>
+    <title>Reports | Car Customization System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6c63ff;
+            --secondary-color: #4d44db;
+            --accent-color: #ff6584;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
-            background-size: cover;
+            background-color: #f5f7fb;
             color: #333;
-            min-height: 100vh;
         }
         
         .sidebar {
-            width: 250px;
-            background-color: rgba(51, 51, 51, 0.95);
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #2c3e50 100%);
             color: white;
-            padding: 20px;
-            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
-            position: fixed;
             height: 100vh;
+            position: fixed;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
         }
         
-        .admin-profile {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #444;
-        }
-        
-        .admin-profile img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid #ff4081;
-            margin-bottom: 10px;
-            object-fit: cover;
-        }
-        
-        .admin-profile p {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 5px 0;
-            color: #ff4081;
-        }
-        
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ff4081;
-            font-size: 1.5rem;
-        }
-        
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .sidebar ul li {
-            margin: 15px 0;
-        }
-        
-        .sidebar ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            padding: 10px;
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
             border-radius: 5px;
-            transition: all 0.3s ease;
+            margin: 5px 0;
+            transition: all 0.3s;
         }
         
-        .sidebar ul li a:hover {
-            background-color: #ff4081;
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
             color: white;
             transform: translateX(5px);
         }
         
-        .sidebar ul li a.active {
-            background-color: #ff4081;
-            color: white;
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
         }
         
         .main-content {
-            flex-grow: 1;
-            padding: 30px;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
             margin-left: 250px;
-            min-height: 100vh;
-        }
-        
-        .logo {
-            width: 300px;
-            margin-bottom: 20px;
-        }
-        
-        .logo img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .dashboard-container {
-            background-color: white;
             padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
             border-radius: 10px;
-            max-width: 1200px;
-            margin: 0 auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        h1 {
-            text-align: center;
-            color: #d81b60;
-            margin-bottom: 30px;
-            font-size: 2.2rem;
-        }
-        
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .stat-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-            border-top: 4px solid #ff8a65;
-            transition: transform 0.3s ease;
-        }
-        
-        .stat-card:hover {
+        .card:hover {
             transform: translateY(-5px);
-        }
-        
-        .stat-card h3 {
-            margin-top: 0;
-            color: #555;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
         .stat-card .value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #d81b60;
-            margin: 15px 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
         }
         
-        .recent-orders {
-            margin-top: 40px;
-        }
-        
-        .recent-orders h2 {
-            color: #d81b60;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-            border-bottom: 2px solid #ffcdd2;
-            padding-bottom: 10px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        th {
-            background-color: #ff8a65;
-            color: white;
-            font-weight: 600;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #fafafa;
-        }
-        
-        tr:hover {
-            background-color: #fff5f5;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.9rem;
-        }
-        
-        .btn-primary {
-            background-color: #ff8a65;
+        .report-table th {
+            background-color: var(--primary-color);
             color: white;
         }
         
-        .btn-primary:hover {
-            background-color: #ff7043;
-            box-shadow: 0 4px 8px rgba(255, 138, 101, 0.3);
+        .badge-pending {
+            background-color: #ffc107;
+            color: #212529;
         }
         
-        .success-message {
-            background-color: #4CAF50;
+        .badge-completed {
+            background-color: #28a745;
             color: white;
-            padding: 15px;
-            border-radius: 5px;
+        }
+        
+        .filter-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
             margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        .no-data {
-            text-align: center;
-            padding: 30px;
-            color: #777;
-            font-size: 1.1rem;
-        }
-        
-        .view-all {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 220px;
-                padding: 15px;
-            }
-            
-            .main-content {
-                margin-left: 220px;
-                padding: 20px;
-            }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
         }
         
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-            
             .sidebar {
                 width: 100%;
-                position: relative;
                 height: auto;
-                margin-bottom: 20px;
+                position: relative;
             }
-            
             .main-content {
                 margin-left: 0;
-                padding: 20px;
-            }
-            
-            .stats-container {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .dashboard-container {
-                padding: 20px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
-            table {
-                display: block;
-                overflow-x: auto;
             }
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="admin-profile">
-            <img src="<?php echo htmlspecialchars($admin['profile_image'] ?? 'Images/default-profile.jpg'); ?>" alt="Admin Profile">
-            <p><?php echo htmlspecialchars($admin['name'] ?? 'Admin'); ?></p>
-            <p><?php echo htmlspecialchars($admin['email'] ?? 'admin@example.com'); ?></p>
-        </div>
-        
-        <h2>Dashboard Menu</h2>
-        <ul>
-            <li><a href="dashboard.php">Overview</a></li>
-            <li><a href="orders.php">Orders</a></li>
-            <li><a href="products.php">Products</a></li>
-            <li><a href="customers.php">Customers</a></li>
-            <li><a href="reports.php" class="active">Reports</a></li>
-            <li><a href="settings.php">Settings</a></li>
-            <li><a href="logout.php">Logout</a></li>
-        </ul>
-    </div>
-    
-    <div class="main-content">
-        <div class="dashboard-container">
-            <h1>Reports Dashboard</h1>
-            
-            <?php if (isset($_SESSION['success_message'])): ?>
-                <div class="success-message">
-                    <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
-                </div>
-            <?php endif; ?>
-            
-            <div class="stats-container">
-                <div class="stat-card">
-                    <h3>Total Reports</h3>
-                    <div class="value"><?php echo $total_reports; ?></div>
-                    <p>All generated reports</p>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Pending Reports</h3>
-                    <div class="value"><?php echo $pending_reports; ?></div>
-                    <p>Reports in progress</p>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Completed Reports</h3>
-                    <div class="value"><?php echo $completed_reports; ?></div>
-                    <p>Ready for download</p>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Recent Reports</h3>
-                    <div class="value"><?php echo $recent_reports; ?></div>
-                    <p>Last 7 days</p>
-                </div>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar p-3" style="width: 250px;">
+            <div class="text-center mb-4">
+                <img src="images/logo-white.png" alt="Logo" style="width: 80%; max-width: 180px;">
             </div>
             
-            <div class="recent-orders">
-                <h2>Recent Reports</h2>
-                
-                <?php if (empty($reports)): ?>
-                    <div class="no-data">
-                        <p>No reports found. Generate your first report to get started.</p>
-                        <a href="generate_report.php" class="btn btn-primary">Generate Report</a>
+            <div class="text-center mb-4">
+                <img src="<?= htmlspecialchars($user['profile_image'] ?? 'images/default-avatar.jpg') ?>" 
+                     class="img-fluid rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                <h6 class="mb-1"><?= htmlspecialchars($user['name']) ?></h6>
+                <small class="text-muted"><?= htmlspecialchars($user['email']) ?></small>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.php">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="orders.php">
+                        <i class="fas fa-shopping-cart"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="products.php">
+                        <i class="fas fa-car"></i> Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="customers.php">
+                        <i class="fas fa-users"></i> Customers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="reports.php">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="settings.php">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+                <li class="nav-item mt-3">
+                    <a class="nav-link text-danger" href="logout.php">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Reports Dashboard</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateReportModal">
+                    <i class="fas fa-plus me-2"></i>Generate Report
+                </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-muted">Total Reports</h5>
+                            <div class="value"><?= $stats['total'] ?></div>
+                            <p class="text-muted mb-0">All generated reports</p>
+                        </div>
                     </div>
-                <?php else: ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Report ID</th>
-                                <th>Report Name</th>
-                                <th>Type</th>
-                                <th>Generated Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($reports as $report): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($report['report_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($report['report_name']); ?></td>
-                                    <td><?php echo htmlspecialchars(ucfirst($report['report_type'])); ?></td>
-                                    <td><?php echo date('M d, Y H:i', strtotime($report['generated_date'])); ?></td>
-                                    <td>
-                                        <span style="color: <?php echo $report['status'] == 'completed' ? '#4CAF50' : '#FFC107'; ?>">
-                                            <?php echo ucfirst($report['status']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if ($report['status'] == 'completed'): ?>
-                                            <a href="download_report.php?id=<?php echo $report['report_id']; ?>" class="btn btn-primary">Download</a>
-                                        <?php else: ?>
-                                            <span class="btn" style="background-color: #e0e0e0; cursor: not-allowed;">Processing</span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-muted">Pending</h5>
+                            <div class="value"><?= $stats['pending'] ?></div>
+                            <p class="text-muted mb-0">In progress</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-muted">Completed</h5>
+                            <div class="value"><?= $stats['completed'] ?></div>
+                            <p class="text-muted mb-0">Ready for download</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-muted">Recent</h5>
+                            <div class="value"><?= $stats['last_7_days'] ?></div>
+                            <p class="text-muted mb-0">Last 7 days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section mb-4">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">Report Type</label>
+                        <select class="form-select" id="type" name="type">
+                            <option value="">All Types</option>
+                            <?php foreach ($report_types as $type): ?>
+                                <option value="<?= $type ?>" <?= $type_filter == $type ? 'selected' : '' ?>><?= $type ?></option>
                             <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    
-                    <div class="view-all">
-                        <a href="all_reports.php" class="btn btn-primary">View All Reports</a>
+                        </select>
                     </div>
-                <?php endif; ?>
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="<?= $date_from ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="<?= $date_to ?>">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-filter me-1"></i> Filter
+                        </button>
+                        <a href="reports.php" class="btn btn-outline-secondary">
+                            <i class="fas fa-sync-alt"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Reports Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover report-table">
+                            <thead>
+                                <tr>
+                                    <th>Report ID</th>
+                                    <th>Report Name</th>
+                                    <th>Type</th>
+                                    <th>Generated By</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($reports)): ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">No reports found. Generate a new report to get started.</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($reports as $report): ?>
+                                        <tr>
+                                            <td>#<?= $report['report_id'] ?></td>
+                                            <td><?= htmlspecialchars($report['report_name']) ?></td>
+                                            <td><?= htmlspecialchars($report['report_type']) ?></td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="images/default-avatar.jpg" class="user-avatar me-2">
+                                                    <?= htmlspecialchars($report['generated_by']) ?>
+                                                </div>
+                                            </td>
+                                            <td><?= date('M d, Y h:i A', strtotime($report['generated_date'])) ?></td>
+                                            <td>
+                                                <span class="badge rounded-pill <?= $report['status'] == 'completed' ? 'badge-completed' : 'badge-pending' ?>">
+                                                    <?= ucfirst($report['status']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?php if ($report['status'] == 'completed'): ?>
+                                                    <a href="download_report.php?id=<?= $report['report_id'] ?>" class="btn btn-sm btn-success me-1">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
+                                                <?php endif; ?>
+                                                <button class="btn btn-sm btn-info me-1" data-bs-toggle="modal" data-bs-target="#viewReportModal" 
+                                                        data-id="<?= $report['report_id'] ?>" data-name="<?= htmlspecialchars($report['report_name']) ?>">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteReportModal" 
+                                                        data-id="<?= $report['report_id'] ?>">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Generate Report Modal -->
+    <div class="modal fade" id="generateReportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generate New Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="generate_report.php" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="reportName" class="form-label">Report Name</label>
+                            <input type="text" class="form-control" id="reportName" name="report_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reportType" class="form-label">Report Type</label>
+                            <select class="form-select" id="reportType" name="report_type" required>
+                                <option value="">Select a report type</option>
+                                <?php foreach ($report_types as $type): ?>
+                                    <option value="<?= $type ?>"><?= $type ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reportPeriod" class="form-label">Time Period</label>
+                            <select class="form-select" id="reportPeriod" name="report_period">
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month" selected>This Month</option>
+                                <option value="quarter">This Quarter</option>
+                                <option value="year">This Year</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="row g-2 mb-3" id="customDateRange" style="display: none;">
+                            <div class="col-md-6">
+                                <label for="customFrom" class="form-label">From</label>
+                                <input type="date" class="form-control" id="customFrom" name="custom_from">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="customTo" class="form-label">To</label>
+                                <input type="date" class="form-control" id="customTo" name="custom_to">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Report Modal -->
+    <div class="modal fade" id="viewReportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center py-4" id="reportLoading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading report details...</p>
+                    </div>
+                    <div id="reportDetails" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="#" class="btn btn-primary" id="downloadReportBtn">Download</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Report Modal -->
+    <div class="modal fade" id="deleteReportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this report? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="delete_report.php" method="post" style="display: inline;">
+                        <input type="hidden" name="report_id" id="deleteReportId">
+                        <button type="submit" class="btn btn-danger">Delete Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle custom date range
+        document.getElementById('reportPeriod').addEventListener('change', function() {
+            const customRange = document.getElementById('customDateRange');
+            customRange.style.display = this.value === 'custom' ? 'flex' : 'none';
+        });
+
+        // View Report Modal
+        const viewReportModal = document.getElementById('viewReportModal');
+        viewReportModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const reportId = button.getAttribute('data-id');
+            const reportName = button.getAttribute('data-name');
+            
+            document.querySelector('#viewReportModal .modal-title').textContent = reportName;
+            document.getElementById('downloadReportBtn').href = `download_report.php?id=${reportId}`;
+            
+            // Simulate loading report details (in a real app, you'd fetch from server)
+            setTimeout(() => {
+                document.getElementById('reportLoading').style.display = 'none';
+                document.getElementById('reportDetails').style.display = 'block';
+                document.getElementById('reportDetails').innerHTML = `
+                    <h6>Report Summary</h6>
+                    <p>This would display detailed information about the report with ID ${reportId}.</p>
+                    <div class="alert alert-info">
+                        In a real implementation, this would show the actual report content, statistics, and visualizations.
+                    </div>
+                `;
+            }, 1500);
+        });
+
+        // Reset view modal when closed
+        viewReportModal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('reportLoading').style.display = 'block';
+            document.getElementById('reportDetails').style.display = 'none';
+            document.getElementById('reportDetails').innerHTML = '';
+        });
+
+        // Delete Report Modal
+        const deleteReportModal = document.getElementById('deleteReportModal');
+        deleteReportModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const reportId = button.getAttribute('data-id');
+            document.getElementById('deleteReportId').value = reportId;
+        });
+    </script>
 </body>
 </html>
-<?php
-$conn->close();
-?>
