@@ -13,22 +13,63 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch orders from the database
-// Corrected SQL query: Assuming the product/car details are in a different table or need a different column name.
-// Replace 'product_name' with the actual column name from your 'orders' table.
-// If the product details are in another table, you'll need to join that table.
-$sql = "SELECT orders.id, users.username, orders.product_name, orders.total_amount, orders.status, orders.created_at
+// Function to get column names from a table
+function getTableColumns($conn, $tableName) {
+    $columns = array();
+    $result = $conn->query("SHOW COLUMNS FROM $tableName");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $columns[] = $row['Field'];
+        }
+    }
+    return $columns;
+}
+
+// Get columns from orders table
+$ordersColumns = getTableColumns($conn, 'orders');
+if (empty($ordersColumns)) {
+    die("Error: Could not retrieve columns from orders table.");
+}
+
+// Get columns from users table
+$usersColumns = getTableColumns($conn, 'users');
+if (empty($usersColumns)) {
+    die("Error: Could not retrieve columns from users table.");
+}
+
+// Determine the correct column names to use
+$amountColumn = in_array('total_amount', $ordersColumns) ? 'total_amount' : 
+               (in_array('amount', $ordersColumns) ? 'amount' : 
+               (in_array('price', $ordersColumns) ? 'price' : 'total'));
+
+$productColumn = in_array('product_name', $ordersColumns) ? 'product_name' : 
+                (in_array('car_model', $ordersColumns) ? 'car_model' : 
+                (in_array('model_name', $ordersColumns) ? 'model_name' : 'product'));
+
+$statusColumn = in_array('status', $ordersColumns) ? 'status' : 'order_status';
+$dateColumn = in_array('created_at', $ordersColumns) ? 'created_at' : 
+             (in_array('order_date', $ordersColumns) ? 'order_date' : 'date_created');
+
+// Build the SQL query
+$sql = "SELECT orders.id, users.username, 
+               orders.$productColumn AS product_name, 
+               orders.$amountColumn AS total_amount, 
+               orders.$statusColumn AS status, 
+               orders.$dateColumn AS created_at
         FROM orders
         INNER JOIN users ON orders.user_id = users.id";
 
 $result = $conn->query($sql);
+if (!$result) {
+    die("Error executing query: " . $conn->error);
+}
 
 // Handle order deletion
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
-    $delete_sql = "DELETE FROM orders WHERE id = ?"; // Use prepared statement
+    $delete_sql = "DELETE FROM orders WHERE id = ?";
     $stmt = $conn->prepare($delete_sql);
-    $stmt->bind_param("i", $delete_id); // Bind the parameter
+    $stmt->bind_param("i", $delete_id);
 
     if ($stmt->execute()) {
         echo "<script>alert('Order deleted successfully!');</script>";
@@ -44,10 +85,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $order_id = $_POST['order_id'];
     $new_status = $_POST['status'];
 
-    // Update order status in the database
-    $update_sql = "UPDATE orders SET status = ? WHERE id = ?"; // Use prepared statement
+    $update_sql = "UPDATE orders SET $statusColumn = ? WHERE id = ?";
     $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("si", $new_status, $order_id); // Bind parameters
+    $stmt->bind_param("si", $new_status, $order_id);
 
     if ($stmt->execute()) {
         echo "<script>alert('Order status updated successfully!');</script>";
@@ -61,77 +101,163 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
 
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders</title>
     <style>
-        /* ... (your CSS styles) ... */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        select, button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        select {
+            min-width: 120px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .status-form {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .no-orders {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .amount {
+            font-weight: bold;
+            color: #27ae60;
+        }
     </style>
 </head>
-
 <body>
-    <div class="sidebar">
-        </div>
-
-    <div class="main-content">
-        <div class="logo">
-            </div>
-
-        <div class="table-container">
-            <h2>Manage Orders</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Product</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                                    <td>{$row['id']}</td>
-                                    <td>{$row['username']}</td>
-                                    <td>{$row['product_name']}</td>
-                                    <td>{$row['total_amount']}</td>
-                                    <td>
-                                        <form class='status-form' method='POST' action=''>
-                                            <input type='hidden' name='order_id' value='{$row['id']}'>
-                                            <select name='status'>
-                                                <option value='Pending'" . ($row['status'] == 'Pending' ? ' selected' : '') . ">Pending</option>
-                                                <option value='Processing'" . ($row['status'] == 'Processing' ? ' selected' : '') . ">Processing</option>
-                                                <option value='Completed'" . ($row['status'] == 'Completed' ? ' selected' : '') . ">Completed</option>
-                                                <option value='Cancelled'" . ($row['status'] == 'Cancelled' ? ' selected' : '') . ">Cancelled</option>
-                                            </select>
-                                            <button type='submit' name='update_status'>Update</button>
-                                        </form>
-                                    </td>
-                                    <td>{$row['created_at']}</td>
-                                    <td>
-                                        <a href='manage_orders.php?delete_id={$row['id']}' onclick=\"return confirm('Are you sure you want to delete this order?');\"><button>Delete</button></a>
-                                    </td>
-                                </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='7'>No orders found.</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
+    <div class="container">
+        <h2>Manage Orders</h2>
+        
+        <?php if ($result->num_rows > 0): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Vehicle</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Order Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['id']) ?></td>
+                    <td><?= htmlspecialchars($row['username']) ?></td>
+                    <td><?= htmlspecialchars($row['product_name']) ?></td>
+                    <td class="amount">$<?= number_format($row['total_amount'], 2) ?></td>
+                    <td>
+                        <form class="status-form" method="POST" action="">
+                            <input type="hidden" name="order_id" value="<?= $row['id'] ?>">
+                            <select name="status">
+                                <option value="Pending" <?= $row['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="Processing" <?= $row['status'] == 'Processing' ? 'selected' : '' ?>>Processing</option>
+                                <option value="Completed" <?= $row['status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
+                                <option value="Cancelled" <?= $row['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                            </select>
+                            <button type="submit" name="update_status">Update</button>
+                        </form>
+                    </td>
+                    <td><?= date('M j, Y h:i A', strtotime($row['created_at'])) ?></td>
+                    <td>
+                        <a href="manage_orders.php?delete_id=<?= $row['id'] ?>" onclick="return confirm('Are you sure you want to delete this order?');">
+                            <button class="delete-btn">Delete</button>
+                        </a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <?php else: ?>
+        <p class="no-orders">No orders found in the system.</p>
+        <?php endif; ?>
     </div>
 </body>
-
 </html>
+
 <?php
-// Close the database connection
 $conn->close();
 ?>
