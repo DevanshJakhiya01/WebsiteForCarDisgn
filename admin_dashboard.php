@@ -115,117 +115,211 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Payments</title>
     <style>
-        body {
+          body {
             font-family: sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
-            background-size: auto;
+            background-size: cover;
             color: red;
+            min-height: 100vh;
         }
+        
         .sidebar {
             width: 250px;
-            background-color: #333;
+            background-color: rgba(51, 51, 51, 0.9);
             color: white;
-            height: 100vh;
             padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        
         .admin-profile {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
         }
+        
         .admin-profile img {
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 3px solid red;
+            border: 3px solid #ff4081;
             margin-bottom: 10px;
+            object-fit: cover;
         }
+        
         .admin-profile p {
             font-size: 18px;
             font-weight: bold;
-            margin: 0;
+            margin: 5px 0;
+            color: #ff4081;
         }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ff4081;
+        }
+        
         .sidebar ul {
             list-style-type: none;
             padding: 0;
+            margin: 0;
         }
+        
         .sidebar ul li {
             margin: 15px 0;
         }
+        
         .sidebar ul li a {
             color: white;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 16px;
             display: block;
             padding: 10px;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
+        
         .sidebar ul li a:hover {
-            background-color: #555;
+            background-color: #ff4081;
+            color: white;
+            transform: translateX(5px);
         }
+        
         .main-content {
             flex-grow: 1;
-            padding: 20px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
         }
+        
         .logo {
             width: 300px;
             margin-bottom: 20px;
         }
+        
         .logo img {
             width: 100%;
             height: auto;
             display: block;
         }
-        .table-container {
+        
+        .order-container {
             background-color: white;
             padding: 20px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 1200px;
-            margin: 0 auto;
+            border-radius: 10px;
         }
-        .table-container h2 {
+        
+        h1 {
             text-align: center;
+            color: #d81b60;
+            margin-bottom: 20px;
         }
-        .table-container table {
+        
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        .table-container th, .table-container td {
-            border: 1px solid #ccc;
-            padding: 10px;
+        
+        th, td {
+            padding: 12px 15px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-        .table-container th {
-            background-color: #f2f2f2;
-        }
-        .table-container button {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: red;
+        
+        th {
+            background-color: darksalmon;
             color: white;
-            cursor: pointer;
         }
-        .table-container button:hover {
-            background-color: darkred;
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
+        
+        tr:hover {
+            background-color: #ffe6ee;
+        }
+        
         .status-form {
-            display: inline-block;
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
-        .status-form select {
-            padding: 5px;
-            border-radius: 5px;
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
             border: 1px solid #ccc;
+            background-color: white;
+        }
+        
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .update-btn {
+            background-color: darksalmon;
+            color: white;
+        }
+        
+        .update-btn:hover {
+            background-color: #e9967a;
+        }
+        
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .no-orders {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
