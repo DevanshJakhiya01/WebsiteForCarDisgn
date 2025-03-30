@@ -107,27 +107,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     <title>Manage Orders</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: sans-serif;
+            margin: 20px;
+            background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
+            background-size: cover;
+            color: red;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .logo {
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .order-container {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
         
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-top: 0;
+        h1 {
+            text-align: center;
+            color: red;
+            margin-bottom: 20px;
         }
         
         table {
@@ -136,123 +152,152 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             margin-top: 20px;
         }
         
-        th {
-            background-color: #3498db;
-            color: white;
-            padding: 12px;
+        th, td {
+            padding: 12px 15px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
         
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
+        th {
+            background-color: darksalmon;
+            color: white;
         }
         
         tr:nth-child(even) {
-            background-color: #f8f9fa;
+            background-color: #f9f9f9;
         }
         
         tr:hover {
-            background-color: #e8f4fc;
-        }
-        
-        select, button {
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-        }
-        
-        select {
-            min-width: 120px;
-        }
-        
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #2980b9;
+            background-color: #ffe6ee;
         }
         
         .status-form {
             display: flex;
             gap: 8px;
+            align-items: center;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: white;
+        }
+        
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .update-btn {
+            background-color: darksalmon;
+            color: white;
+        }
+        
+        .update-btn:hover {
+            background-color: #e9967a;
         }
         
         .delete-btn {
-            background-color: #e74c3c;
+            background-color: #f44336;
+            color: white;
         }
         
         .delete-btn:hover {
-            background-color: #c0392b;
+            background-color: #d32f2f;
+        }
+        
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         
         .no-orders {
             text-align: center;
-            padding: 30px;
-            color: #7f8c8d;
+            padding: 20px;
+            color: #666;
             font-style: italic;
         }
         
-        .amount {
-            font-weight: bold;
-            color: #27ae60;
+        @media (max-width: 768px) {
+            .order-container {
+                padding: 15px;
+                width: 95%;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Manage Orders</h2>
+    <div class="logo">
+        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Car Customization Logo">
+    </div>
+    
+    <div class="order-container">
+        <h1>Manage Orders</h1>
+        
+        <?php if (isset($_GET['success'])): ?>
+            <div class="success-message">
+                <?= htmlspecialchars(urldecode($_GET['success'])) ?>
+            </div>
+        <?php endif; ?>
         
         <?php if ($result->num_rows > 0): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Vehicle</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Order Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['username']) ?></td>
-                    <td><?= htmlspecialchars($row['product_name']) ?></td>
-                    <td class="amount">$<?= number_format($row['total_amount'], 2) ?></td>
-                    <td>
-                        <form class="status-form" method="POST" action="">
-                            <input type="hidden" name="order_id" value="<?= $row['id'] ?>">
-                            <select name="status">
-                                <option value="Pending" <?= $row['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
-                                <option value="Processing" <?= $row['status'] == 'Processing' ? 'selected' : '' ?>>Processing</option>
-                                <option value="Completed" <?= $row['status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
-                                <option value="Cancelled" <?= $row['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                            </select>
-                            <button type="submit" name="update_status">Update</button>
-                        </form>
-                    </td>
-                    <td><?= date('M j, Y h:i A', strtotime($row['created_at'])) ?></td>
-                    <td>
-                        <a href="manage_orders.php?delete_id=<?= $row['id'] ?>" onclick="return confirm('Are you sure you want to delete this order?');">
-                            <button class="delete-btn">Delete</button>
-                        </a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id']) ?></td>
+                        <td><?= htmlspecialchars($row['username']) ?></td>
+                        <td><?= htmlspecialchars($row['product_name']) ?></td>
+                        <td>$<?= number_format($row['total_amount'], 2) ?></td>
+                        <td>
+                            <form class="status-form" method="POST">
+                                <input type="hidden" name="order_id" value="<?= $row['id'] ?>">
+                                <select name="status">
+                                    <option value="Pending" <?= $row['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                    <option value="Processing" <?= $row['status'] == 'Processing' ? 'selected' : '' ?>>Processing</option>
+                                    <option value="Completed" <?= $row['status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
+                                    <option value="Cancelled" <?= $row['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                </select>
+                                <button type="submit" name="update_status" class="update-btn">Update</button>
+                            </form>
+                        </td>
+                        <td><?= date('M j, Y h:i A', strtotime($row['created_at'])) ?></td>
+                        <td>
+                            <a href="manage_orders.php?delete_id=<?= $row['id'] ?>" onclick="return confirm('Are you sure you want to delete this order?');">
+                                <button class="delete-btn">Delete</button>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
         <?php else: ?>
-        <p class="no-orders">No orders found in the system.</p>
+            <p class="no-orders">No orders found in the system</p>
         <?php endif; ?>
     </div>
 </body>
