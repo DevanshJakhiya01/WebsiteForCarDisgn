@@ -2,7 +2,7 @@
 
 // Configuration
 $razorpayKeyId = 'rzp_test_LX93MSrwBis0CQ';
-$razorpayKeySecret ='GVOVNcNqxlkFhrfQbLz7oowh'
+$razorpayKeySecret = 'GVOVNcNqxlkFhrfQbLz7oowh'; // Added semicolon here
 $amount = '16000'; // Amount in paise (e.g., 10000 paise = ₹100)
 $currency = 'INR';
 $receipt = 'order_' . time();
