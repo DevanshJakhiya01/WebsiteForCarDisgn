@@ -366,7 +366,6 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
             <li><a href="manage_products.php">Products</a></li>
             <li><a href="manage_orders.php">Orders</a></li>
             <li><a href="manage_payments.php">Payments</a></li>
-            <li><a href="reports.php">Reports</a></li>
             <li><a href="settings.php">Settings</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
