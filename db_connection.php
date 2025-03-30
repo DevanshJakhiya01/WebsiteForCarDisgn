@@ -40,7 +40,7 @@ function sanitize_input($data) {
  */
 function close_db_connection() {
     global $conn;
-    if (isset($conn) {
+    if (isset($conn)) {
         $conn->close();
     }
 }
@@ -49,5 +49,5 @@ function close_db_connection() {
 register_shutdown_function('close_db_connection');
 
 // Set timezone if needed
-date_default_timezone_set('Asia/Kolkata'); // Change to your timezone
+date_default_timezone_set('UTC'); // Change to your preferred timezone
 ?>
