@@ -15,149 +15,160 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Insert admin user (run this only once)
-$password = "Sonakshi01";
-$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+// Create table if not exists
+$createTableSQL = "CREATE TABLE IF NOT EXISTS admins (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
 
-$sql = "INSERT INTO admins (admin_username, admin_password) VALUES ('Devansh', '$hashed_password')";
-if ($conn->query($sql) === TRUE) {
-    echo "<script>alert('Admin user added successfully.');</script>";
-} else {
-    echo "<script>alert('Error adding admin user: " . $conn->error . "');</script>";
+if (!$conn->query($createTableSQL)) {
+    die("Error creating table: " . $conn->error);
 }
-// End of admin user insertion code
 
-// Handle form submission
+// FORCE RECREATE ADMIN WITH PROPERLY HASHED PASSWORD
+$adminPass = "Sonakshi01";
+$hashedPass = password_hash($adminPass, PASSWORD_DEFAULT);
+$conn->query("DELETE FROM admins WHERE username = 'Devansh'");
+$conn->query("INSERT INTO admins (username, password) VALUES ('Devansh', '$hashedPass')");
+
+// Login handling
+$error_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $admin_username = trim($_POST['admin_username']);
-    $admin_password = trim($_POST['admin_password']);
+    $input_username = trim($_POST['username'] ?? '');
+    $input_password = trim($_POST['password'] ?? '');
 
-    // Validate inputs
-    if (empty($admin_username) || empty($admin_password)) {
+    if (empty($input_username) || empty($input_password)) {
         $error_message = "Please fill in all fields.";
     } else {
-        // Fetch admin details from the database
-        $sql = "SELECT id, admin_username, admin_password FROM admins WHERE admin_username = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $admin_username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows == 1) {
-            $row = $result->fetch_assoc();
-            // Verify password
-            if (password_verify($admin_password, $row['admin_password'])) {
-                // Login successful
-                $_SESSION['admin_id'] = $row['id'];
-                $_SESSION['admin_username'] = $row['admin_username'];
-                header("Location: admin_dashboard.php"); // Redirect to admin dashboard
-                exit();
-            } else {
-                $error_message = "Invalid username or password.";
-            }
+        $stmt = $conn->prepare("SELECT id, username, password FROM admins WHERE username = ?");
+        if (!$stmt) {
+            $error_message = "Database error. Please try again later.";
         } else {
-            $error_message = "Invalid username or password.";
+            $stmt->bind_param("s", $input_username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 1) {
+                $admin = $result->fetch_assoc();
+                
+                if (password_verify($input_password, $admin['password'])) {
+                    $_SESSION['admin_id'] = $admin['id'];
+                    $_SESSION['admin_username'] = $admin['username'];
+                    header("Location: admin_dashboard.php");
+                    exit();
+                } else {
+                    $error_message = "Invalid password. Please try again.";
+                }
+            } else {
+                $error_message = "Username not found.";
+            }
+            $stmt->close();
         }
     }
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <style>
         body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-image: url("Images/doddles\ of\ car\ in\ whole\ page\ in\ pink\ and\ red\ color\ for\ website\ background.jpg");
-            background-size: cover;
-            color: red;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
+            margin: 0;
+        }
+        .login-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
         }
         .logo {
-            width: 300px;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
         .logo img {
-            width: 100%;
-            height: auto;
-            display: block;
+            height: 60px;
         }
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
+        h2 {
             text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
         }
-        .form-container input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
+        .form-group {
+            margin-bottom: 1rem;
         }
-        .form-container button {
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input {
             width: 100%;
-            padding: 10px;
-            background-color: darksalmon;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #4CAF50;
+            color: white;
             border: none;
-            color: white;
-            font-size: 16px;
+            border-radius: 4px;
+            font-size: 1rem;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            margin-top: 1rem;
         }
-        .form-container button:hover {
-            background-color: #e9967a;
+        button:hover {
+            background: #45a049;
         }
-        .error-message {
-            color: red;
-            margin-bottom: 10px;
-        }
-        .admin-panel-link {
-            display: inline-block;
-            margin-top: 10px;
-            color: white;
-            background-color: darksalmon;
-            padding: 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .admin-panel-link:hover {
-            background-color: #e9967a;
+        .error {
+            color: #f44336;
+            background: #ffebee;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
         }
     </style>
 </head>
-
 <body>
-    <div class="logo">
-        <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Devansh Car Customization Logo">
-    </div>
-
-    <div class="form-container">
+    <div class="login-box">
+        <div class="logo">
+            <img src="Images/Devansh%20Car%20Customization%20logo%201.jpg" alt="Logo">
+        </div>
+        
         <h2>Admin Login</h2>
-        <?php if (isset($error_message)): ?>
-            <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
+        
+        <?php if ($error_message): ?>
+            <div class="error"><?= htmlspecialchars($error_message) ?></div>
         <?php endif; ?>
-        <form action="admin_login.php" method="POST">
-            <input type="text" name="admin_username" placeholder="Admin Username" required>
-            <input type="password" name="admin_password" placeholder="Admin Password" required>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
             <button type="submit">Login</button>
         </form>
-        <a href="admin_dashboard.php" class="admin-panel-link">Admin Panel</a>
     </div>
 </body>
 </html>
