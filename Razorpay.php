@@ -3,19 +3,20 @@
 // Configuration
 $razorpayKeyId = 'rzp_test_LX93MSrwBis0CQ';
 $razorpayKeySecret = 'GVOVNcNqxlkFhrfQbLz7oowh';
-$amount = 16000; // Amount in paise (e.g., 16000 paise = ₹160) - Set a valid amount here!
+$amount = 16000; // Amount in paise
 $currency = 'INR';
 $receipt = 'order_' . time();
 $order_id = '';
 
-// 1. Create Razorpay Order
+// Include Razorpay PHP library
 $razorpayLibPath = __DIR__ . '/razorpay-php/Razorpay.php';
+
+// Use statements must be at the top level of the file.
+use Razorpay\Api\Api;
+use Razorpay\Api\Errors\SignatureVerificationError;
 
 if (file_exists($razorpayLibPath)) {
     require($razorpayLibPath);
-
-    use Razorpay\Api\Api;
-    use Razorpay\Api\Errors\SignatureVerificationError;
 
     try {
         $api = new Api($razorpayKeyId, $razorpayKeySecret);
@@ -30,7 +31,7 @@ if (file_exists($razorpayLibPath)) {
         $razorpayOrder = $api->order->create($orderData);
         $order_id = $razorpayOrder['id'];
 
-        // 2. PhonePe Integration (using Razorpay's PhonePe method)
+        // PhonePe Integration
         $phonePeData = [
             'order_id' => $order_id,
             'amount'   => $amount,
@@ -38,9 +39,8 @@ if (file_exists($razorpayLibPath)) {
             'method'   => 'phonepe'
         ];
 
-        // 3. Display PhonePe Payment Form (using Razorpay's checkout.js)
+        // Display PhonePe Payment Form
         ?>
-
         <!DOCTYPE html>
         <html>
         <head>
@@ -64,30 +64,33 @@ if (file_exists($razorpayLibPath)) {
             </form>
 
             <script type="text/javascript">
-                window.onload = function(){
-                  document.forms['paymentForm'].submit()
+                window.onload = function() {
+                    document.forms['paymentForm'].submit();
                 };
             </script>
         </body>
         </html>
-
         <?php
-        // 4. Verify Payment (webhook or redirect)
-        if (isset($_POST['razorpay_payment_id']) && isset($_POST['razorpay_order_id']) && isset($_POST['razorpay_signature'])) {
 
+        // Payment Verification
+        if (isset($_POST['razorpay_payment_id']) && isset($_POST['razorpay_order_id']) && isset($_POST['razorpay_signature'])) {
             $razorpay_payment_id = $_POST['razorpay_payment_id'];
             $razorpay_order_id = $_POST['razorpay_order_id'];
             $razorpay_signature = $_POST['razorpay_signature'];
 
-            $attributes = array('razorpay_order_id' => $razorpay_order_id, 'razorpay_payment_id' => $razorpay_payment_id, 'razorpay_signature' => $razorpay_signature);
+            $attributes = [
+                'razorpay_order_id' => $razorpay_order_id,
+                'razorpay_payment_id' => $razorpay_payment_id,
+                'razorpay_signature' => $razorpay_signature
+            ];
 
             try {
                 $api->utility->verifyPaymentSignature($attributes);
                 echo "Payment Successful. Payment ID: " . $razorpay_payment_id;
-                // Update your order status in your database
+                // Update your database order status
             } catch (SignatureVerificationError $e) {
                 echo 'Razorpay Signature Verification Error: ' . $e->getMessage();
-                // Update your order status in your database
+                // Update your database order status (failed)
             }
         }
     } catch (Exception $e) {
