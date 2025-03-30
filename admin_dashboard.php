@@ -59,29 +59,31 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Car Customization</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             background-image: url("Images/doddles%20of%20car%20in%20whole%20page%20in%20pink%20and%20red%20color%20for%20website%20background.jpg");
             background-size: cover;
-            color: red;
+            color: #333;
             min-height: 100vh;
         }
         
         .sidebar {
             width: 250px;
-            background-color: rgba(51, 51, 51, 0.9);
+            background-color: rgba(51, 51, 51, 0.95);
             color: white;
             padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            height: 100vh;
         }
         
         .admin-profile {
@@ -111,6 +113,7 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
             text-align: center;
             margin-bottom: 20px;
             color: #ff4081;
+            font-size: 1.5rem;
         }
         
         .sidebar ul {
@@ -127,10 +130,11 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
             color: white;
             text-decoration: none;
             font-size: 16px;
-            display: block;
+            display: flex;
+            align-items: center;
             padding: 10px;
             border-radius: 5px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
         .sidebar ul li a:hover {
@@ -139,12 +143,18 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
             transform: translateX(5px);
         }
         
+        .sidebar ul li a.active {
+            background-color: #ff4081;
+            color: white;
+        }
+        
         .main-content {
             flex-grow: 1;
             padding: 30px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(5px);
-            overflow-y: auto;
+            margin-left: 250px;
+            min-height: 100vh;
         }
         
         .logo {
@@ -160,101 +170,148 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
         
         .dashboard-container {
             background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         h1 {
             text-align: center;
             color: #d81b60;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
         }
         
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 25px;
+            margin-bottom: 40px;
         }
         
         .stat-card {
             background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             text-align: center;
-            border-top: 4px solid darksalmon;
+            border-top: 4px solid #ff8a65;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
         
         .stat-card h3 {
             margin-top: 0;
-            color: #333;
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
         }
         
         .stat-card .value {
-            font-size: 36px;
+            font-size: 2.5rem;
             font-weight: bold;
             color: #d81b60;
-            margin: 10px 0;
+            margin: 15px 0;
         }
         
         .recent-orders {
-            margin-top: 30px;
+            margin-top: 40px;
+        }
+        
+        .recent-orders h2 {
+            color: #d81b60;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #ffcdd2;
+            padding-bottom: 10px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         th, td {
-            padding: 12px 15px;
+            padding: 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
         
         th {
-            background-color: darksalmon;
+            background-color: #ff8a65;
             color: white;
+            font-weight: 600;
         }
         
         tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #fafafa;
         }
         
         tr:hover {
-            background-color: #ffe6ee;
+            background-color: #fff5f5;
         }
         
         .btn {
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            font-size: 0.9rem;
         }
         
         .btn-primary {
-            background-color: darksalmon;
+            background-color: #ff8a65;
             color: white;
         }
         
         .btn-primary:hover {
-            background-color: #e9967a;
+            background-color: #ff7043;
+            box-shadow: 0 4px 8px rgba(255, 138, 101, 0.3);
         }
         
         .success-message {
             background-color: #4CAF50;
             color: white;
             padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+            font-size: 1.1rem;
+        }
+        
+        .view-all {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+                padding: 15px;
+            }
+            
+            .main-content {
+                margin-left: 220px;
+                padding: 20px;
+            }
         }
         
         @media (max-width: 768px) {
@@ -264,13 +321,26 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
             
             .sidebar {
                 width: 100%;
-                padding: 15px;
+                position: relative;
+                height: auto;
+                margin-bottom: 20px;
             }
             
             .main-content {
+                margin-left: 0;
                 padding: 20px;
             }
             
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .dashboard-container {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 576px) {
             .stats-container {
                 grid-template-columns: 1fr;
             }
@@ -292,6 +362,7 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
         <ul>
             <li><a href="admin_dashboard.php" class="active">Dashboard</a></li>
             <li><a href="manage_users.php">Users</a></li>
+            <li><a href="manage_categories.php">Categories</a></li>
             <li><a href="manage_products.php">Products</a></li>
             <li><a href="manage_orders.php">Orders</a></li>
             <li><a href="manage_payments.php">Payments</a></li>
@@ -318,25 +389,25 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
             <div class="stats-container">
                 <div class="stat-card">
                     <h3>Total Orders</h3>
-                    <div class="value"><?= $stats['total_orders'] ?></div>
+                    <div class="value"><?= number_format($stats['total_orders']) ?></div>
                     <a href="manage_orders.php" class="btn btn-primary">View Orders</a>
                 </div>
                 
                 <div class="stat-card">
                     <h3>Pending Orders</h3>
-                    <div class="value"><?= $stats['pending_orders'] ?></div>
+                    <div class="value"><?= number_format($stats['pending_orders']) ?></div>
                     <a href="manage_orders.php?status=Pending" class="btn btn-primary">View Pending</a>
                 </div>
                 
                 <div class="stat-card">
                     <h3>Total Users</h3>
-                    <div class="value"><?= $stats['total_users'] ?></div>
+                    <div class="value"><?= number_format($stats['total_users']) ?></div>
                     <a href="manage_users.php" class="btn btn-primary">Manage Users</a>
                 </div>
                 
                 <div class="stat-card">
                     <h3>Total Products</h3>
-                    <div class="value"><?= $stats['total_products'] ?></div>
+                    <div class="value"><?= number_format($stats['total_products']) ?></div>
                     <a href="manage_products.php" class="btn btn-primary">Manage Products</a>
                 </div>
             </div>
@@ -374,17 +445,32 @@ $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_
                                 <td><?= htmlspecialchars($order['username']) ?></td>
                                 <td><?= htmlspecialchars($order['product_name']) ?></td>
                                 <td>$<?= number_format($order['total_amount'], 2) ?></td>
-                                <td><?= htmlspecialchars($order['status']) ?></td>
-                                <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
+                                <td>
+                                    <span style="
+                                        background-color: <?= $order['status'] == 'Pending' ? '#fff3e0' : 
+                                                          ($order['status'] == 'Completed' ? '#e8f5e9' : '#ffebee') ?>;
+                                        color: <?= $order['status'] == 'Pending' ? '#ff8f00' : 
+                                               ($order['status'] == 'Completed' ? '#2e7d32' : '#c62828') ?>;
+                                        padding: 5px 10px;
+                                        border-radius: 20px;
+                                        font-weight: 500;
+                                        display: inline-block;
+                                    ">
+                                        <?= htmlspecialchars($order['status']) ?>
+                                    </span>
+                                </td>
+                                <td><?= date('M j, Y g:i A', strtotime($order['created_at'])) ?></td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
                     </table>
-                    <div style="text-align: center; margin-top: 20px;">
+                    <div class="view-all">
                         <a href="manage_orders.php" class="btn btn-primary">View All Orders</a>
                     </div>
                 <?php else: ?>
-                    <p>No recent orders found</p>
+                    <div class="no-data">
+                        <p>No recent orders found</p>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
