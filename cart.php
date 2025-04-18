@@ -275,7 +275,7 @@ if (isset($_POST['proceed_to_payment'])) {
         <?php if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])): ?>
             <div class="empty-cart">
                 <p>Your cart is currently empty.</p>
-                <p><a href="index.php">Continue shopping</a></p>
+                <p><a href="http://localhost/project/WebsiteForCarDisgn/First%20page%20for%20project%20website.php">Continue shopping</a></p>
             </div>
         <?php else: ?>
             <div class="cart-items">
